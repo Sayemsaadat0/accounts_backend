@@ -5,6 +5,7 @@ const { assetsRoutes } = require("../modules/Assets/assets.routes");
 const { suppliersRoutes } = require("../modules/Suppliers/suppliers.routes");
 const { customerRoutes } = require("../modules/Customers/customer.routes");
 const { companiesRoutes } = require("../modules/Companies/companies.routes");
+const { projectsRoutes } = require("../modules/Projects/projects.routes");
 const router = express.Router();
 
 const moduleRoutes = [
