@@ -3,6 +3,7 @@ const { userRoutes } = require("../modules/User/user.routes");
 const { accountsRoutes } = require("../modules/Accounts/accounts.routes");
 const { assetsRoutes } = require("../modules/Assets/assets.routes");
 const { suppliersRoutes } = require("../modules/Suppliers/suppliers.routes");
+const { customerRoutes } = require("../modules/Customers/customer.routes");
 const router = express.Router();
 
 const moduleRoutes = [
@@ -21,6 +22,10 @@ const moduleRoutes = [
   {
     path: "/suppliers",
     route: suppliersRoutes,
+  },
+  {
+    path: "/customers",
+    route: customerRoutes,
   },
 ];
 
