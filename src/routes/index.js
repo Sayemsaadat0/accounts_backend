@@ -42,6 +42,10 @@ const moduleRoutes = [
     path: "/ledgers",
     route: ledgersRoutes,
   },
+  {
+    path: "/sub-ledgers",
+    route: ledgersRoutes,
+  },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
