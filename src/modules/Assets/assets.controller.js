@@ -1,7 +1,7 @@
 const { connection } = require("../../config");
 
 const getAllAssets = async (req, res) => {
-  const sql = "SELECT * FROM assets";
+  const sql = "SELECT * FROM assets ORDER BY createdAt DESC";
   connection.query(sql, (err, results) => {
     if (err) {
       console.error("Error getting assets: " + err.message);
