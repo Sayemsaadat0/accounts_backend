@@ -7,6 +7,7 @@ const { customerRoutes } = require("../modules/Customers/customer.routes");
 const { companiesRoutes } = require("../modules/Companies/companies.routes");
 const { projectsRoutes } = require("../modules/Projects/projects.routes");
 const { ledgersRoutes } = require("../modules/Ledgers/ledgers.routes");
+const { subLedgersRoutes } = require("../modules/SubLedgers/subLedgers.routes");
 const router = express.Router();
 
 const moduleRoutes = [
@@ -44,7 +45,7 @@ const moduleRoutes = [
   },
   {
     path: "/sub-ledgers",
-    route: ledgersRoutes,
+    route: subLedgersRoutes,
   },
 ];
 
