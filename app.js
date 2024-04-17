@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require('cors')
+const cors = require("cors");
 const PORT = process.env.PORT || 3000;
 const app = express();
 const router = require("./src/routes/index");
@@ -7,9 +7,9 @@ const { connection } = require("./src/config");
 app.use(express.json());
 
 var corsOptions = {
-  origin: 'http://localhost:5173',
-  optionsSuccessStatus: 200
-}
+  origin: "http://localhost:5173",
+  optionsSuccessStatus: 200,
+};
 
 app.use(cors(corsOptions));
 
