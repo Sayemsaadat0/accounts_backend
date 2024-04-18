@@ -26,12 +26,10 @@ const createAsset = async (req, res) => {
         res.status(500).json({ error: "Error creating asset" });
         return;
       }
-      res
-        .status(201)
-        .json({
-          message: "Asset created successfully",
-          assetId: result.insertId,
-        });
+      res.status(201).json({
+        message: "Asset created successfully",
+        assetId: result.insertId,
+      });
     }
   );
 };
