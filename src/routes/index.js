@@ -10,6 +10,9 @@ const { ledgersRoutes } = require("../modules/Ledgers/ledgers.routes");
 const { subLedgersRoutes } = require("../modules/SubLedgers/subLedgers.routes");
 const { expensesRoutes } = require("../modules/Expenses/expenses.routes");
 const { incomeRoutes } = require("../modules/Incomes/Incomes.routes");
+const {
+  accountsPayableRoutes,
+} = require("../modules/AccountsPayable/accountsPayable.routes");
 const router = express.Router();
 
 const moduleRoutes = [
@@ -56,6 +59,10 @@ const moduleRoutes = [
   {
     path: "/incomes",
     route: incomeRoutes,
+  },
+  {
+    path: "/accounts-payable",
+    route: accountsPayableRoutes,
   },
 ];
 
