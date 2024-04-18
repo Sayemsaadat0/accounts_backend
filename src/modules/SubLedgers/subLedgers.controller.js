@@ -15,13 +15,13 @@ const getAllSubLedgers = async (req, res) => {
 const createSubLedger = async (req, res) => {
   const { subLedger_code, subLedger_name, ledger_name, project_name, status } =
     req.body;
-  console.log({
-    subLedger_code,
-    subLedger_name,
-    ledger_name,
-    project_name,
-    status,
-  });
+  // console.log({
+  //   subLedger_code,
+  //   subLedger_name,
+  //   ledger_name,
+  //   project_name,
+  //   status,
+  // });
   const sql =
     "INSERT INTO sub_ledgers (subLedger_code, subLedger_name, ledger_name, project_name, status) VALUES (?, ?, ?, ?, ?)";
   connection.query(

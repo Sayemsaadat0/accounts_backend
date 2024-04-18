@@ -13,7 +13,7 @@ const getAllUsers = async (req, res) => {
 };
 const createUser = async (req, res) => {
   const { password, email } = req.body;
-  console.log({ password, email });
+  // console.log({ password, email });
   const sql = "INSERT INTO users (password, email) VALUES (?, ?)";
   connection.query(sql, [password, email], (err, result) => {
     if (err) {
