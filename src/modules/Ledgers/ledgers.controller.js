@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllLedgers = async (req, res) => {
   const sql = "SELECT * FROM ledgers";
@@ -13,24 +14,23 @@ const getAllLedgers = async (req, res) => {
 };
 
 const createLedger = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const { ledger_code, ledger_name, project_name, status } = req.body;
   const sql =
-    "INSERT INTO ledgers (ledger_code, ledger_name, project_name, status) VALUES (?, ?, ?, ?)";
+    "INSERT INTO ledgers (id,ledger_code, ledger_name, project_name, status) VALUES (?,?, ?, ?, ?)";
   connection.query(
     sql,
-    [ledger_code, ledger_name, project_name, status],
+    [uniqueId, ledger_code, ledger_name, project_name, status],
     (err, result) => {
       if (err) {
         console.error("Error creating ledger: " + err.message);
         res.status(500).json({ error: "Error creating ledger" });
         return;
       }
-      res
-        .status(201)
-        .json({
-          message: "Ledger created successfully",
-          ledgerId: result.insertId,
-        });
+      res.status(201).json({
+        message: "Ledger created successfully",
+        ledgerId: result.insertId,
+      });
     }
   );
 };

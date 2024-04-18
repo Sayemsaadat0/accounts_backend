@@ -1,6 +1,8 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const createExpense = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const {
     select_date,
     payment_type,
@@ -21,8 +23,9 @@ const createExpense = async (req, res) => {
   });
 
   const sql =
-    "INSERT INTO expense (select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO expense (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger) VALUES (?,?, ?, ?, ?, ?, ?, ?)";
   const values = [
+    uniqueId,
     select_date,
     payment_type,
     actual_amount,

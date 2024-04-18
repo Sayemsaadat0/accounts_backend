@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllAccounts = async (req, res) => {
   const sql = "SELECT * FROM accounts ORDER BY createdAt DESC";
@@ -12,11 +13,8 @@ const getAllAccounts = async (req, res) => {
   });
 };
 
-
-
-
-
 const createAccount = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const { account_name, bank_name, account_no, branch_name, balance } =
     req.body;
   const sql =

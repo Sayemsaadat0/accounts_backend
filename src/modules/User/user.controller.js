@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllUsers = async (req, res) => {
   const sql = "SELECT * FROM users";
@@ -12,10 +13,11 @@ const getAllUsers = async (req, res) => {
   });
 };
 const createUser = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const { password, email } = req.body;
   // console.log({ password, email });
-  const sql = "INSERT INTO users (password, email) VALUES (?, ?)";
-  connection.query(sql, [password, email], (err, result) => {
+  const sql = "INSERT INTO users (id,password, email) VALUES (?,?, ?)";
+  connection.query(sql, [uniqueId, password, email], (err, result) => {
     if (err) {
       console.error("Error creating user: " + err.message);
       res.status(500).json({ error: "Error creating user" });
