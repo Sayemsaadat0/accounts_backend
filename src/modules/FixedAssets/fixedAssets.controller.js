@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllFixedAssets = async (req, res) => {
   const sql = "SELECT * FROM fixed_assets";
@@ -13,6 +14,7 @@ const getAllFixedAssets = async (req, res) => {
 };
 
 const createFixedAsset = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const {
     select_date,
     payment_type,
@@ -26,10 +28,11 @@ const createFixedAsset = async (req, res) => {
     quantity,
   } = req.body;
   const sql =
-    "INSERT INTO fixed_assets (select_date, payment_type, deduction_month, actual_amount, paid_amount, createdAt, due_amount, note, asset_header, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO fixed_assets (id,select_date, payment_type, deduction_month, actual_amount, paid_amount, createdAt, due_amount, note, asset_header, quantity) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   connection.query(
     sql,
     [
+      uniqueId,
       select_date,
       payment_type,
       deduction_month,
@@ -47,12 +50,10 @@ const createFixedAsset = async (req, res) => {
         res.status(500).json({ error: "Error creating fixed asset" });
         return;
       }
-      res
-        .status(201)
-        .json({
-          message: "Fixed asset created successfully",
-          assetId: result.insertId,
-        });
+      res.status(201).json({
+        message: "Fixed asset created successfully",
+        assetId: result.insertId,
+      });
     }
   );
 };
