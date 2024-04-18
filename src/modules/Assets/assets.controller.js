@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllAssets = async (req, res) => {
   const sql = "SELECT * FROM assets ORDER BY createdAt DESC";
@@ -13,13 +14,14 @@ const getAllAssets = async (req, res) => {
 };
 
 const createAsset = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const { assets_head, assets_qty, deduction_month, total_amount } = req.body;
   // console.log({ assets_head, assets_qty, deduction_month, total_amount });
   const sql =
-    "INSERT INTO assets (assets_head, assets_qty, deduction_month, total_amount) VALUES (?, ?, ?, ?)";
+    "INSERT INTO assets (id,assets_head, assets_qty, deduction_month, total_amount) VALUES (?,?, ?, ?, ?)";
   connection.query(
     sql,
-    [assets_head, assets_qty, deduction_month, total_amount],
+    [uniqueId, assets_head, assets_qty, deduction_month, total_amount],
     (err, result) => {
       if (err) {
         console.error("Error creating asset: " + err.message);

@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllProjects = async (req, res) => {
   const sql = "SELECT * FROM projects";
@@ -13,25 +14,24 @@ const getAllProjects = async (req, res) => {
 };
 
 const createProject = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const { project_code, project_name, company_name, status } = req.body;
   // console.log({ project_code, project_name, company_name, status });
   const sql =
-    "INSERT INTO projects (project_code, project_name, company_name, status) VALUES (?, ?, ?, ?)";
+    "INSERT INTO projects (id,project_code, project_name, company_name, status) VALUES (?,?, ?, ?, ?)";
   connection.query(
     sql,
-    [project_code, project_name, company_name, status],
+    [uniqueId, project_code, project_name, company_name, status],
     (err, result) => {
       if (err) {
         console.error("Error creating project: " + err.message);
         res.status(500).json({ error: "Error creating project" });
         return;
       }
-      res
-        .status(201)
-        .json({
-          message: "Project created successfully",
-          projectId: result.insertId,
-        });
+      res.status(201).json({
+        message: "Project created successfully",
+        projectId: result.insertId,
+      });
     }
   );
 };

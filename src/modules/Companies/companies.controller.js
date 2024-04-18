@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllCompanies = async (req, res) => {
   const sql = "SELECT * FROM companies";
@@ -13,25 +14,24 @@ const getAllCompanies = async (req, res) => {
 };
 
 const createCompany = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const { company_code, company_name, company_address } = req.body;
   // console.log({ company_code, company_name, company_address });
   const sql =
-    "INSERT INTO companies (company_code, company_name, company_address) VALUES (?, ?, ?)";
+    "INSERT INTO companies (id,company_code, company_name, company_address) VALUES (?,?, ?, ?)";
   connection.query(
     sql,
-    [company_code, company_name, company_address],
+    [uniqueId, company_code, company_name, company_address],
     (err, result) => {
       if (err) {
         console.error("Error creating company: " + err.message);
         res.status(500).json({ error: "Error creating company" });
         return;
       }
-      res
-        .status(201)
-        .json({
-          message: "Company created successfully",
-          companyId: result.insertId,
-        });
+      res.status(201).json({
+        message: "Company created successfully",
+        companyId: result.insertId,
+      });
     }
   );
 };

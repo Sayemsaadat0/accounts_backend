@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllSuppliers = async (req, res) => {
   const sql = "SELECT * FROM suppliers";
@@ -13,26 +14,25 @@ const getAllSuppliers = async (req, res) => {
 };
 
 const createSupplier = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const { supplier_name, phone_no, supplier_email, supplier_address } =
     req.body;
   // console.log({ supplier_name, phone_no, supplier_email, supplier_address });
   const sql =
-    "INSERT INTO suppliers (supplier_name, phone_no, supplier_email, supplier_address) VALUES (?, ?, ?, ?)";
+    "INSERT INTO suppliers (id,supplier_name, phone_no, supplier_email, supplier_address) VALUES (?,?, ?, ?, ?)";
   connection.query(
     sql,
-    [supplier_name, phone_no, supplier_email, supplier_address],
+    [uniqueId, supplier_name, phone_no, supplier_email, supplier_address],
     (err, result) => {
       if (err) {
         console.error("Error creating supplier: " + err.message);
         res.status(500).json({ error: "Error creating supplier" });
         return;
       }
-      res
-        .status(201)
-        .json({
-          message: "Supplier created successfully",
-          supplierId: result.insertId,
-        });
+      res.status(201).json({
+        message: "Supplier created successfully",
+        supplierId: result.insertId,
+      });
     }
   );
 };

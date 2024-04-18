@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllSubLedgers = async (req, res) => {
   const sql = "SELECT * FROM sub_ledgers";
@@ -13,6 +14,7 @@ const getAllSubLedgers = async (req, res) => {
 };
 
 const createSubLedger = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const { subLedger_code, subLedger_name, ledger_name, project_name, status } =
     req.body;
   // console.log({
@@ -23,22 +25,27 @@ const createSubLedger = async (req, res) => {
   //   status,
   // });
   const sql =
-    "INSERT INTO sub_ledgers (subLedger_code, subLedger_name, ledger_name, project_name, status) VALUES (?, ?, ?, ?, ?)";
+    "INSERT INTO sub_ledgers (id,subLedger_code, subLedger_name, ledger_name, project_name, status) VALUES (?,?, ?, ?, ?, ?)";
   connection.query(
     sql,
-    [subLedger_code, subLedger_name, ledger_name, project_name, status],
+    [
+      uniqueId,
+      subLedger_code,
+      subLedger_name,
+      ledger_name,
+      project_name,
+      status,
+    ],
     (err, result) => {
       if (err) {
         console.error("Error creating sub ledger: " + err.message);
         res.status(500).json({ error: "Error creating sub ledger" });
         return;
       }
-      res
-        .status(201)
-        .json({
-          message: "Sub ledger created successfully",
-          subLedgerId: result.insertId,
-        });
+      res.status(201).json({
+        message: "Sub ledger created successfully",
+        subLedgerId: result.insertId,
+      });
     }
   );
 };
