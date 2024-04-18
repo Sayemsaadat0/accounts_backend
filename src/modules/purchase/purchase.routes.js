@@ -8,4 +8,4 @@ router.post("/", purchaseController.createPurchase);
 router.put("/:id", purchaseController.updatePurchase);
 router.delete("/:id", purchaseController.deletePurchase);
 
-module.exports = { salesRoutes: router };
+module.exports = { purchaseRoutes: router };
