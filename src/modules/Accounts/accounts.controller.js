@@ -1,7 +1,7 @@
 const { connection } = require("../../config");
 
 const getAllAccounts = async (req, res) => {
-  const sql = "SELECT * FROM accounts";
+  const sql = "SELECT * FROM accounts ORDER BY createdAt DESC";
   connection.query(sql, (err, results) => {
     if (err) {
       console.error("Error getting accounts: " + err.message);
@@ -11,6 +11,10 @@ const getAllAccounts = async (req, res) => {
     res.status(200).json(results);
   });
 };
+
+
+
+
 
 const createAccount = async (req, res) => {
   const { account_name, bank_name, account_no, branch_name, balance } =

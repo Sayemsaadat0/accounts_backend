@@ -15,7 +15,7 @@ const getAllSuppliers = async (req, res) => {
 const createSupplier = async (req, res) => {
   const { supplier_name, phone_no, supplier_email, supplier_address } =
     req.body;
-  console.log({ supplier_name, phone_no, supplier_email, supplier_address });
+  // console.log({ supplier_name, phone_no, supplier_email, supplier_address });
   const sql =
     "INSERT INTO suppliers (supplier_name, phone_no, supplier_email, supplier_address) VALUES (?, ?, ?, ?)";
   connection.query(
