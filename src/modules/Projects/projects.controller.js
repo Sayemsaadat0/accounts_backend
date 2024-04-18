@@ -14,7 +14,7 @@ const getAllProjects = async (req, res) => {
 
 const createProject = async (req, res) => {
   const { project_code, project_name, company_name, status } = req.body;
-  console.log({ project_code, project_name, company_name, status });
+  // console.log({ project_code, project_name, company_name, status });
   const sql =
     "INSERT INTO projects (project_code, project_name, company_name, status) VALUES (?, ?, ?, ?)";
   connection.query(

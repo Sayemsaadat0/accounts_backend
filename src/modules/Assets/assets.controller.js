@@ -1,7 +1,7 @@
 const { connection } = require("../../config");
 
 const getAllAssets = async (req, res) => {
-  const sql = "SELECT * FROM assets";
+  const sql = "SELECT * FROM assets ORDER BY createdAt DESC";
   connection.query(sql, (err, results) => {
     if (err) {
       console.error("Error getting assets: " + err.message);
@@ -14,7 +14,7 @@ const getAllAssets = async (req, res) => {
 
 const createAsset = async (req, res) => {
   const { assets_head, assets_qty, deduction_month, total_amount } = req.body;
-  console.log({ assets_head, assets_qty, deduction_month, total_amount });
+  // console.log({ assets_head, assets_qty, deduction_month, total_amount });
   const sql =
     "INSERT INTO assets (assets_head, assets_qty, deduction_month, total_amount) VALUES (?, ?, ?, ?)";
   connection.query(
