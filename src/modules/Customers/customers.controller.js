@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllCustomers = async (req, res) => {
   const sql = "SELECT * FROM customers";
@@ -13,14 +14,15 @@ const getAllCustomers = async (req, res) => {
 };
 
 const createCustomer = async (req, res) => {
+  const uniqueId = generateUniqueId();
   const { customer_name, phone_no, customer_email, customer_address } =
     req.body;
   // console.log({ customer_name, phone_no, customer_email, customer_address });
   const sql =
-    "INSERT INTO customers (customer_name, phone_no, customer_email, customer_address) VALUES (?, ?, ?, ?)";
+    "INSERT INTO customers (id,customer_name, phone_no, customer_email, customer_address) VALUES (?, ?, ?, ?, ?)";
   connection.query(
     sql,
-    [customer_name, phone_no, customer_email, customer_address],
+    [uniqueId, customer_name, phone_no, customer_email, customer_address],
     (err, result) => {
       if (err) {
         console.error("Error creating customer: " + err.message);
