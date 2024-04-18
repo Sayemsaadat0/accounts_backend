@@ -12,6 +12,25 @@ const getAllAccounts = async (req, res) => {
     res.status(200).json(results);
   });
 };
+const getTotalAmount = async (req, res) => {
+  const sql = "SELECT * FROM accounts ORDER BY createdAt DESC";
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error getting accounts: " + err.message);
+      res.status(500).json({ error: "Error getting accounts" });
+      return;
+    }
+
+    // Calculate total account balance
+    let totalBalance = 0;
+    results.forEach((account) => {
+      totalBalance += parseFloat(account.balance); // Assuming balance is stored as string in database
+    });
+
+    // Send the total balance as a response
+    res.status(200).json({ totalBalance });
+  });
+};
 
 const createAccount = async (req, res) => {
   const uniqueId = generateUniqueId();
@@ -100,6 +119,7 @@ const accountsController = {
   deleteAccount,
   getAccountById,
   createAccount,
+  getTotalAmount,
 };
 
 module.exports = accountsController;
