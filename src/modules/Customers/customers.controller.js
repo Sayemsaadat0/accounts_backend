@@ -15,7 +15,7 @@ const getAllCustomers = async (req, res) => {
 const createCustomer = async (req, res) => {
   const { customer_name, phone_no, customer_email, customer_address } =
     req.body;
-  console.log({ customer_name, phone_no, customer_email, customer_address });
+  // console.log({ customer_name, phone_no, customer_email, customer_address });
   const sql =
     "INSERT INTO customers (customer_name, phone_no, customer_email, customer_address) VALUES (?, ?, ?, ?)";
   connection.query(
