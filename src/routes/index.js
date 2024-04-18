@@ -16,10 +16,10 @@ const {
 const {
   accountsReceivableRoutes,
 } = require("../modules/AccountsReceivable/accountsReceivable.routes");
-const { salesRoutes } = require("../modules/Sales/salse.routes");
+const { salesRoutes } = require("../modules/Sales/sales.routes");
 const { purchaseRoutes } = require("../modules/purchase/purchase.routes");
 const {
-  fixedAssetsRoutes,
+  fixedAssetRoutes,
 } = require("../modules/FixedAssets/fixedAssets.routes");
 const router = express.Router();
 
@@ -86,7 +86,7 @@ const moduleRoutes = [
   },
   {
     path: "/fixed-assets",
-    route: fixedAssetsRoutes,
+    route: fixedAssetRoutes,
   },
 ];
 
