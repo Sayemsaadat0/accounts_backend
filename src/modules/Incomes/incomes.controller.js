@@ -74,7 +74,10 @@ const getIncomeById = async (req, res) => {
       res.status(404).json({ message: "Income not found" });
       return;
     }
-    res.status(200).json(result[0]);
+    result.forEach((r) => {
+      r.ledger = JSON.parse(r.ledger);
+    });
+    res.status(200).json(result);
   });
 };
 
