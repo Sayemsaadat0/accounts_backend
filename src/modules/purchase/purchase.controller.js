@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllPurchases = async (req, res) => {
   const sql = "SELECT * FROM purchase";
