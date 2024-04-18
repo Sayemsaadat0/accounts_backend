@@ -16,6 +16,8 @@ const {
 const {
   accountsReceivableRoutes,
 } = require("../modules/AccountsReceivable/accountsReceivable.routes");
+const { salesRoutes } = require("../modules/Sales/salse.routes");
+const purchaseRoutes = require("../modules/purchase/purchase.routes");
 const router = express.Router();
 
 const moduleRoutes = [
@@ -70,6 +72,14 @@ const moduleRoutes = [
   {
     path: "/accounts-receivable",
     route: accountsReceivableRoutes,
+  },
+  {
+    path: "/sales",
+    route: salesRoutes,
+  },
+  {
+    path: "/purchase",
+    route: purchaseRoutes,
   },
 ];
 
