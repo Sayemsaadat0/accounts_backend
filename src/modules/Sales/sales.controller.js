@@ -33,13 +33,17 @@ const createSale = async (req, res) => {
     due_amount,
     note,
   });
+  const formattedSelectedDate = new Date(select_date)
+    .toISOString()
+    .split("T")[0];
+
   const sql =
     "INSERT INTO sales (id, select_date, payment_type, customer, paid_amount, actual_amount, due_amount, note) VALUES (?,?, ?, ?, ?, ?, ?, ?)";
   connection.query(
     sql,
     [
       uniqueId,
-      select_date,
+      formattedSelectedDate,
       payment_type,
       customer,
       paid_amount,
