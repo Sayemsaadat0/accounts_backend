@@ -15,17 +15,11 @@ const getAllSubLedgers = async (req, res) => {
 
 const createSubLedger = async (req, res) => {
   const uniqueId = generateUniqueId();
-  const { subLedger_code, subLedger_name, ledger_name, project_name, status } =
+  const { subLedger_code, subLedger_name, ledger_name, status } =
     req.body;
-  // console.log({
-  //   subLedger_code,
-  //   subLedger_name,
-  //   ledger_name,
-  //   project_name,
-  //   status,
-  // });
+
   const sql =
-    "INSERT INTO sub_ledgers (id,subLedger_code, subLedger_name, ledger_name, project_name, status) VALUES (?,?, ?, ?, ?, ?)";
+    "INSERT INTO sub_ledgers (id,subLedger_code, subLedger_name, ledger_name,  status) VALUES (?,?, ?, ?, ?)";
   connection.query(
     sql,
     [
@@ -33,7 +27,6 @@ const createSubLedger = async (req, res) => {
       subLedger_code,
       subLedger_name,
       ledger_name,
-      project_name,
       status,
     ],
     (err, result) => {
@@ -86,17 +79,16 @@ const deleteSubLedger = async (req, res) => {
 
 const updateSubLedger = async (req, res) => {
   const subLedgerId = req.params.id;
-  const { subLedger_code, subLedger_name, ledger_name, project_name, status } =
+  const { subLedger_code, subLedger_name, ledger_name, status } =
     req.body;
   const sql =
-    "UPDATE sub_ledgers SET subLedger_code = ?, subLedger_name = ?, ledger_name = ?, project_name = ?, status = ? WHERE id = ?";
+    "UPDATE sub_ledgers SET subLedger_code = ?, subLedger_name = ?, ledger_name = ?,  status = ? WHERE id = ?";
   connection.query(
     sql,
     [
       subLedger_code,
       subLedger_name,
       ledger_name,
-      project_name,
       status,
       subLedgerId,
     ],
