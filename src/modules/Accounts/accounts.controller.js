@@ -37,10 +37,10 @@ const createAccount = async (req, res) => {
   const { account_name, bank_name, account_no, branch_name, balance } =
     req.body;
   const sql =
-    "INSERT INTO accounts (account_name, bank_name, account_no, branch_name, balance) VALUES (?, ?, ?, ?, ?)";
+    "INSERT INTO accounts (id,account_name, bank_name, account_no, branch_name, balance) VALUES (?, ?, ?, ?, ?)";
   connection.query(
     sql,
-    [account_name, bank_name, account_no, branch_name, balance],
+    [uniqueId, account_name, bank_name, account_no, branch_name, balance],
     (err, result) => {
       if (err) {
         console.error("Error creating account: " + err.message);
