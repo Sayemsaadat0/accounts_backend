@@ -10,20 +10,22 @@ const { ledgersRoutes } = require("../modules/Ledgers/ledgers.routes");
 const { subLedgersRoutes } = require("../modules/SubLedgers/subLedgers.routes");
 const { expensesRoutes } = require("../modules/Expenses/expenses.routes");
 const { incomeRoutes } = require("../modules/Incomes/Incomes.routes");
+const { salesRoutes } = require("../modules/Sales/sales.routes");
+const { purchaseRoutes } = require("../modules/purchase/purchase.routes");
+const { authRoutes } = require("../modules/Auth/auth.routes");
 const {
   accountsPayableRoutes,
 } = require("../modules/AccountsPayable/accountsPayable.routes");
 const {
   accountsReceivableRoutes,
 } = require("../modules/AccountsReceivable/accountsReceivable.routes");
-const { salesRoutes } = require("../modules/Sales/sales.routes");
-const { purchaseRoutes } = require("../modules/purchase/purchase.routes");
 const {
   fixedAssetRoutes,
 } = require("../modules/FixedAssets/fixedAssets.routes");
 const {
   transactionRoutes,
 } = require("../modules/AllTransactionData/allTransactionData.routes");
+
 const router = express.Router();
 
 const moduleRoutes = [
@@ -94,6 +96,10 @@ const moduleRoutes = [
   {
     path: "/all-transactions",
     route: transactionRoutes,
+  },
+  {
+    path: "/login",
+    route: authRoutes,
   },
 ];
 
