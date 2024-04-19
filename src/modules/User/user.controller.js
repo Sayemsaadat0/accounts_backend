@@ -1,5 +1,6 @@
 const { connection } = require("../../config");
 const generateUniqueId = require("../../middleware/generateUniqueId");
+const bcrypt = require("bcrypt");
 
 const getAllUsers = async (req, res) => {
   const sql = "SELECT * FROM users";
@@ -14,18 +15,67 @@ const getAllUsers = async (req, res) => {
 };
 const createUser = async (req, res) => {
   const uniqueId = generateUniqueId();
-  const { password, email } = req.body;
-  // console.log({ password, email });
-  const sql = "INSERT INTO users (id,password, email) VALUES (?,?, ?)";
-  connection.query(sql, [uniqueId, password, email], (err, result) => {
+  const {
+    email,
+    password,
+    username,
+    phone_number,
+    image,
+    company_name = "personal",
+  } = req.body;
+
+  // Generate a salt
+  const saltRounds = 10;
+  bcrypt.genSalt(saltRounds, function (err, salt) {
     if (err) {
-      console.error("Error creating user: " + err.message);
-      res.status(500).json({ error: "Error creating user" });
+      // Handle error
       return;
     }
-    res
-      .status(201)
-      .json({ message: "User created successfully", userId: result.insertId });
+
+    // Hash the password with the generated salt
+    bcrypt.hash(password, salt, function (err, hash) {
+      if (err) {
+        // Handle error
+        return;
+      }
+      // Store the hashed password in the database
+      const password = hash;
+      console.log({
+        uniqueId,
+        email,
+        password,
+        username,
+        phone_number,
+        image,
+        company_name,
+      });
+      const sql =
+        "INSERT INTO users (id, email, password, username, phone_number, image, company_name) VALUES (?,?,?,?,?,?,?)";
+
+      connection.query(
+        sql,
+        [
+          uniqueId,
+          email,
+          password,
+          username,
+          phone_number,
+          image,
+          company_name,
+        ],
+        (err, result) => {
+          if (err) {
+            console.error("Error creating user: " + err.message);
+            res.status(500).json({ error: "Error creating user" });
+            return;
+          }
+          res.status(201).json({
+            message: "User created successfully",
+            userId: result.insertId,
+          });
+        }
+      );
+    });
   });
 };
 const getUserById = async (req, res) => {
