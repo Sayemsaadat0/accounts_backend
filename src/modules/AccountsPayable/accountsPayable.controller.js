@@ -21,12 +21,15 @@ const createAccountsPayable = async (req, res) => {
     note,
     ledger,
   });
+  const formattedSelectedDate = new Date(select_date)
+    .toISOString()
+    .split("T")[0];
 
   const sql =
     "INSERT INTO accounts_payable (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
   const values = [
     uniqueId,
-    select_date,
+    formattedSelectedDate,
     payment_type,
     actual_amount,
     paid_amount,

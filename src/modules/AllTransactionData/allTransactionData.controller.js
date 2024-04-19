@@ -15,6 +15,9 @@ const getTransactionAllData = async (req, res) => {
     const latestSales = await queryDatabase(
       "SELECT * FROM sales ORDER BY createdAt DESC LIMIT 10"
     );
+    const latestFixedAssets = await queryDatabase(
+      "SELECT * FROM fixed_assets ORDER BY createdAt DESC LIMIT 10"
+    );
 
     // Combine the results into a single array
     const allLatestData = [
@@ -37,6 +40,11 @@ const getTransactionAllData = async (req, res) => {
         table: "sales",
         data: latestSales[0],
         createdAt: latestSales[0] ? latestSales[0].createdAt : null,
+      },
+      {
+        table: "fixed_assets",
+        data: latestFixedAssets[0],
+        createdAt: latestFixedAssets[0] ? latestFixedAssets[0].createdAt : null,
       },
     ];
 

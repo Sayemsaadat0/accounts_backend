@@ -24,13 +24,17 @@ const createPurchase = async (req, res) => {
     note,
     supplier_name,
   } = req.body;
+  const formattedSelectedDate = new Date(select_date)
+    .toISOString()
+    .split("T")[0];
+
   const sql =
     "INSERT INTO purchase (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, supplier_name) VALUES (?,?, ?, ?, ?, ?, ?, ?)";
   connection.query(
     sql,
     [
       uniqueId,
-      select_date,
+      formattedSelectedDate,
       payment_type,
       actual_amount,
       paid_amount,
