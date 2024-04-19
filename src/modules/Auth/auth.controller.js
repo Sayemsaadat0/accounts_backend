@@ -40,7 +40,50 @@ const loginUser = async (req, res) => {
   });
 };
 
+const updateProfileData = async (req, res) => {
+  const userId = req.params.id;
+  const { username, image, company_name, email } = req.body;
+
+  // Construct the SQL query dynamically based on the fields provided in the request body
+  let sql = "UPDATE users SET";
+  const values = [];
+  if (username) {
+    sql += " username = ?,";
+    values.push(username);
+  }
+  if (image) {
+    sql += " image = ?,";
+    values.push(image);
+  }
+  if (company_name) {
+    sql += " company_name = ?,";
+    values.push(company_name);
+  }
+  if (email) {
+    sql += " email = ?,";
+    values.push(email);
+  }
+  // Remove the trailing comma
+  sql = sql.slice(0, -1);
+  sql += " WHERE id = ?";
+  values.push(userId);
+
+  connection.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Error updating user: " + err.message);
+      res.status(500).json({ error: "Error updating user" });
+      return;
+    }
+    if (result.affectedRows === 0) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+    res.status(200).json({ message: "User updated successfully" });
+  });
+};
+
 const authController = {
+  updateProfileData,
   loginUser,
 };
 module.exports = authController;
