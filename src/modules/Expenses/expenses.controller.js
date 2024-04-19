@@ -22,11 +22,12 @@ const createExpense = async (req, res) => {
     ledger,
   });
 
+  const formattedDate = new Date(select_date).toISOString().split("T")[0];
   const sql =
     "INSERT INTO expense (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger) VALUES (?,?, ?, ?, ?, ?, ?, ?)";
   const values = [
     uniqueId,
-    select_date,
+    formattedDate,
     payment_type,
     actual_amount,
     paid_amount,

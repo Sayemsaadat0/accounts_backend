@@ -21,24 +21,28 @@ const createFixedAsset = async (req, res) => {
     deduction_month,
     actual_amount,
     paid_amount,
-    createdAt,
     due_amount,
     note,
     asset_header,
     quantity,
   } = req.body;
+  const formattedSelectedDate = new Date(select_date)
+    .toISOString()
+    .split("T")[0];
+  const formattedDeductionDate = new Date(deduction_month)
+    .toISOString()
+    .split("T")[0];
   const sql =
-    "INSERT INTO fixed_assets (id,select_date, payment_type, deduction_month, actual_amount, paid_amount, createdAt, due_amount, note, asset_header, quantity) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO fixed_assets (id,select_date, payment_type, deduction_month, actual_amount, paid_amount,  due_amount, note, asset_header, quantity) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
   connection.query(
     sql,
     [
       uniqueId,
-      select_date,
+      formattedSelectedDate,
       payment_type,
-      deduction_month,
+      formattedDeductionDate,
       actual_amount,
       paid_amount,
-      createdAt,
       due_amount,
       note,
       asset_header,
