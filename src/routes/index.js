@@ -25,6 +25,9 @@ const {
 const {
   transactionRoutes,
 } = require("../modules/AllTransactionData/allTransactionData.routes");
+const {
+  calculationRoutes,
+} = require("../modules/Calculation/calculation.routes");
 
 const router = express.Router();
 
@@ -100,6 +103,10 @@ const moduleRoutes = [
   {
     path: "/login",
     route: authRoutes,
+  },
+  {
+    path: "/calculation",
+    route: calculationRoutes,
   },
 ];
 
