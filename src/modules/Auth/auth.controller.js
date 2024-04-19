@@ -63,7 +63,7 @@ const updateProfileData = async (req, res) => {
     sql += " email = ?,";
     values.push(email);
   }
-  // Remove the trailing comma ,
+  // Remove the trailing comma
   sql = sql.slice(0, -1);
   sql += " WHERE id = ?";
   values.push(userId);
