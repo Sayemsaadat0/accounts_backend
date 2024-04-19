@@ -37,7 +37,7 @@ const createAccount = async (req, res) => {
   const { account_name, bank_name, account_no, branch_name, balance } =
     req.body;
   const sql =
-    "INSERT INTO accounts (id,account_name, bank_name, account_no, branch_name, balance) VALUES (?, ?, ?, ?, ?)";
+    "INSERT INTO accounts (id, account_name, bank_name, account_no, branch_name, balance) VALUES (?, ?, ?, ?, ?, ?)";
   connection.query(
     sql,
     [uniqueId, account_name, bank_name, account_no, branch_name, balance],

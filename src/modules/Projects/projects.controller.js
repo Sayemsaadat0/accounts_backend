@@ -16,7 +16,6 @@ const getAllProjects = async (req, res) => {
 const createProject = async (req, res) => {
   const uniqueId = generateUniqueId();
   const { project_code, project_name, company_name, status } = req.body;
-  // console.log({ project_code, project_name, company_name, status });
   const sql =
     "INSERT INTO projects (id,project_code, project_name, company_name, status) VALUES (?,?, ?, ?, ?)";
   connection.query(

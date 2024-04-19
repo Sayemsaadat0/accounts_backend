@@ -16,7 +16,6 @@ const getAllCompanies = async (req, res) => {
 const createCompany = async (req, res) => {
   const uniqueId = generateUniqueId();
   const { company_code, company_name, company_address } = req.body;
-  // console.log({ company_code, company_name, company_address });
   const sql =
     "INSERT INTO companies (id,company_code, company_name, company_address) VALUES (?,?, ?, ?)";
   connection.query(
