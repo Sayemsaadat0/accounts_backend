@@ -12,21 +12,15 @@ const createIncome = async (req, res) => {
     note,
     ledger,
   } = req.body;
-  console.log({
-    select_date,
-    payment_type,
-    actual_amount,
-    paid_amount,
-    due_amount,
-    note,
-    ledger,
-  });
+
+  // Convert select_date to the correct format
+  const formattedDate = new Date(select_date).toISOString().split("T")[0];
 
   const sql =
-    "INSERT INTO incomes (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger) VALUES (?,?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO incomes (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
   const values = [
     uniqueId,
-    select_date,
+    formattedDate,
     payment_type,
     actual_amount,
     paid_amount,
@@ -47,7 +41,6 @@ const createIncome = async (req, res) => {
     });
   });
 };
-
 const getAllIncomes = async (req, res) => {
   const sql = "SELECT * FROM incomes";
   connection.query(sql, (err, results) => {
