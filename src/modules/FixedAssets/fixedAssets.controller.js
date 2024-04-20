@@ -33,7 +33,7 @@ const createFixedAsset = async (req, res) => {
     .toISOString()
     .split("T")[0];
   const sql =
-    "INSERT INTO fixed_assets (id,select_date, payment_type, deduction_month, actual_amount, paid_amount,  due_amount, note, asset_header, quantity) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO fixed_assets (id,select_date, payment_type, deduction_month, actual_amount, paid_amount,  due_amount, note, asset_header, quantity, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   connection.query(
     sql,
     [
@@ -47,6 +47,8 @@ const createFixedAsset = async (req, res) => {
       note,
       asset_header,
       quantity,
+      company_name,
+      project_name,
     ],
     (err, result) => {
       if (err) {
@@ -109,9 +111,11 @@ const updateFixedAsset = async (req, res) => {
     note,
     asset_header,
     quantity,
+    company_name,
+    project_name,
   } = req.body;
   const sql =
-    "UPDATE fixed_assets SET select_date = ?, payment_type = ?, deduction_month = ?, actual_amount = ?, paid_amount = ?, createdAt = ?, due_amount = ?, note = ?, asset_header = ?, quantity = ? WHERE id = ?";
+    "UPDATE fixed_assets SET select_date = ?, payment_type = ?, deduction_month = ?, actual_amount = ?, paid_amount = ?, createdAt = ?, due_amount = ?, note = ?, asset_header = ?, quantity = ?, , company_name = ?, project_name = ?, WHERE id = ?";
   connection.query(
     sql,
     [
@@ -125,6 +129,8 @@ const updateFixedAsset = async (req, res) => {
       note,
       asset_header,
       quantity,
+      company_name,
+      project_name,
       assetId,
     ],
     (err, result) => {
