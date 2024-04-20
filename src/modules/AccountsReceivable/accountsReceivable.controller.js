@@ -10,7 +10,7 @@ const createAccountsReceivable = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
     company_name,
     project_name,
   } = req.body;
@@ -21,7 +21,7 @@ const createAccountsReceivable = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
   });
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
@@ -37,7 +37,7 @@ const createAccountsReceivable = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    JSON.stringify(ledger),
+    JSON.stringify(ledger_name),
     company_name,
     project_name,
   ];
@@ -116,7 +116,7 @@ const updateAccountsReceivable = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
     company_name,
     project_name,
   } = req.body;
@@ -131,7 +131,7 @@ const updateAccountsReceivable = async (req, res) => {
       paid_amount,
       due_amount,
       note,
-      JSON.stringify(ledger),
+      JSON.stringify(ledger_name),
       company_name,
       project_name,
       accountsReceivableId,
