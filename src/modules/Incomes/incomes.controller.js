@@ -11,13 +11,15 @@ const createIncome = async (req, res) => {
     due_amount,
     note,
     ledger,
+    company_name,
+    project_name,
   } = req.body;
 
   // Convert select_date to the correct format
   const formattedDate = new Date(select_date).toISOString().split("T")[0];
 
   const sql =
-    "INSERT INTO incomes (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO incomes (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)";
   const values = [
     uniqueId,
     formattedDate,
@@ -27,6 +29,8 @@ const createIncome = async (req, res) => {
     due_amount,
     note,
     JSON.stringify(ledger),
+    company_name,
+    project_name,
   ];
 
   connection.query(sql, values, (err, result) => {
@@ -104,9 +108,11 @@ const updateIncome = async (req, res) => {
     due_amount,
     note,
     ledger,
+    company_name,
+    project_name,
   } = req.body;
   const sql =
-    "UPDATE incomes SET select_date = ?, payment_type = ?, actual_amount = ?, paid_amount = ?, due_amount = ?, note = ?, ledger = ? WHERE id = ?";
+    "UPDATE incomes SET select_date = ?, payment_type = ?, actual_amount = ?, paid_amount = ?, due_amount = ?, note = ?, ledger = ?, company_name = ?, project_name = ?,  WHERE id = ?";
   connection.query(
     sql,
     [
@@ -117,6 +123,8 @@ const updateIncome = async (req, res) => {
       due_amount,
       note,
       JSON.stringify(ledger),
+      company_name,
+      project_name,
       incomeId,
     ],
     (err, result) => {

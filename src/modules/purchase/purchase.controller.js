@@ -23,13 +23,15 @@ const createPurchase = async (req, res) => {
     due_amount,
     note,
     supplier_name,
+    company_name,
+    project_name,
   } = req.body;
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
     .split("T")[0];
 
   const sql =
-    "INSERT INTO purchase (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, supplier_name) VALUES (?,?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO purchase (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, supplier_name, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
   connection.query(
     sql,
     [
@@ -41,6 +43,9 @@ const createPurchase = async (req, res) => {
       due_amount,
       note,
       supplier_name,
+      ,
+      company_name,
+      project_name,
     ],
     (err, result) => {
       if (err) {
@@ -100,9 +105,11 @@ const updatePurchase = async (req, res) => {
     due_amount,
     note,
     supplier_name,
+    company_name,
+    project_name,
   } = req.body;
   const sql =
-    "UPDATE purchase SET select_date = ?, payment_type = ?, actual_amount = ?, paid_amount = ?, due_amount = ?, note = ?, supplier_name = ? WHERE id = ?";
+    "UPDATE purchase SET select_date = ?, payment_type = ?, actual_amount = ?, paid_amount = ?, due_amount = ?, note = ?, supplier_name = ?, company_name = ?, project_name = ?,  WHERE id = ?";
   connection.query(
     sql,
     [
@@ -113,6 +120,8 @@ const updatePurchase = async (req, res) => {
       due_amount,
       note,
       supplier_name,
+      company_name,
+      project_name,
       purchaseId,
     ],
     (err, result) => {

@@ -25,6 +25,8 @@ const createFixedAsset = async (req, res) => {
     note,
     asset_header,
     quantity,
+    company_name,
+    project_name,
   } = req.body;
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
@@ -115,7 +117,7 @@ const updateFixedAsset = async (req, res) => {
     project_name,
   } = req.body;
   const sql =
-    "UPDATE fixed_assets SET select_date = ?, payment_type = ?, deduction_month = ?, actual_amount = ?, paid_amount = ?, createdAt = ?, due_amount = ?, note = ?, asset_header = ?, quantity = ?, , company_name = ?, project_name = ?, WHERE id = ?";
+    "UPDATE fixed_assets SET select_date = ?, payment_type = ?, deduction_month = ?, actual_amount = ?, paid_amount = ?, createdAt = ?, due_amount = ?, note = ?, asset_header = ?, quantity = ?, company_name = ?, project_name = ?, WHERE id = ?";
   connection.query(
     sql,
     [

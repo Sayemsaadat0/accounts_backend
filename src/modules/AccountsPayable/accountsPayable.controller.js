@@ -11,6 +11,8 @@ const createAccountsPayable = async (req, res) => {
     due_amount,
     note,
     ledger,
+    company_name,
+    project_name,
   } = req.body;
   console.log({
     select_date,
@@ -26,7 +28,7 @@ const createAccountsPayable = async (req, res) => {
     .split("T")[0];
 
   const sql =
-    "INSERT INTO accounts_payable (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
+    "INSERT INTO accounts_payable (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name = ?, project_name = ?, ) VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?)";
   const values = [
     uniqueId,
     formattedSelectedDate,
@@ -36,6 +38,8 @@ const createAccountsPayable = async (req, res) => {
     due_amount,
     note,
     JSON.stringify(ledger),
+    company_name,
+    project_name,
   ];
 
   connection.query(sql, values, (err, result) => {
@@ -111,9 +115,11 @@ const updateAccountsPayable = async (req, res) => {
     due_amount,
     note,
     ledger,
+    company_name,
+    project_name,
   } = req.body;
   const sql =
-    "UPDATE accounts_payable SET select_date = ?, payment_type = ?, actual_amount = ?, paid_amount = ?, due_amount = ?, note = ?, ledger = ? WHERE id = ?";
+    "UPDATE accounts_payable SET select_date = ?, payment_type = ?, actual_amount = ?, paid_amount = ?, due_amount = ?, note = ?, ledger = ?, company_name = ?, project_name = ?,  WHERE id = ?";
   connection.query(
     sql,
     [
@@ -124,6 +130,8 @@ const updateAccountsPayable = async (req, res) => {
       due_amount,
       note,
       JSON.stringify(ledger),
+      company_name,
+      project_name,
       accountsPayableId,
     ],
     (err, result) => {

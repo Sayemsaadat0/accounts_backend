@@ -23,6 +23,8 @@ const createSale = async (req, res) => {
     actual_amount,
     due_amount,
     note,
+    company_name,
+    project_name,
   } = req.body;
   console.log({
     select_date,
@@ -38,7 +40,7 @@ const createSale = async (req, res) => {
     .split("T")[0];
 
   const sql =
-    "INSERT INTO sales (id, select_date, payment_type, customer, paid_amount, actual_amount, due_amount, note) VALUES (?,?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO sales (id, select_date, payment_type, customer, paid_amount, actual_amount, due_amount, note, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
   connection.query(
     sql,
     [
@@ -50,6 +52,8 @@ const createSale = async (req, res) => {
       actual_amount,
       due_amount,
       note,
+      company_name,
+      project_name,
     ],
     (err, result) => {
       if (err) {
@@ -109,9 +113,11 @@ const updateSale = async (req, res) => {
     actual_amount,
     due_amount,
     note,
+    company_name,
+    project_name,
   } = req.body;
   const sql =
-    "UPDATE sales SET select_date = ?, payment_type = ?, customer = ?, paid_amount = ?, actual_amount = ?, due_amount = ?, note = ? WHERE id = ?";
+    "UPDATE sales SET select_date = ?, payment_type = ?, customer = ?, paid_amount = ?, actual_amount = ?, due_amount = ?, note = ?, company_name = ?, project_name = ?,  WHERE id = ?";
   connection.query(
     sql,
     [
@@ -122,6 +128,8 @@ const updateSale = async (req, res) => {
       actual_amount,
       due_amount,
       note,
+      company_name,
+      project_name,
       saleId,
     ],
     (err, result) => {
