@@ -10,7 +10,7 @@ const createAccountsPayable = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
     company_name,
     project_name,
   } = req.body;
@@ -21,14 +21,15 @@ const createAccountsPayable = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
   });
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
     .split("T")[0];
 
-  const sql =
-    "INSERT INTO accounts_payable (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name = ?, project_name = ?, ) VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?)";
+    const sql =
+    "INSERT INTO accounts_payable (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
   const values = [
     uniqueId,
     formattedSelectedDate,
@@ -37,7 +38,7 @@ const createAccountsPayable = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    JSON.stringify(ledger),
+    JSON.stringify(ledger_name),
     company_name,
     project_name,
   ];
@@ -114,7 +115,7 @@ const updateAccountsPayable = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
     company_name,
     project_name,
   } = req.body;
@@ -129,7 +130,7 @@ const updateAccountsPayable = async (req, res) => {
       paid_amount,
       due_amount,
       note,
-      JSON.stringify(ledger),
+      JSON.stringify(ledger_name),
       company_name,
       project_name,
       accountsPayableId,

@@ -10,7 +10,7 @@ const createExpense = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
     company_name,
     project_name,
   } = req.body;
@@ -21,7 +21,7 @@ const createExpense = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
   });
 
   const formattedDate = new Date(select_date).toISOString().split("T")[0];
@@ -35,7 +35,7 @@ const createExpense = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    JSON.stringify(ledger),
+    JSON.stringify(ledger_name),
     company_name,
     project_name,
   ];
@@ -114,7 +114,7 @@ const updateExpense = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
     company_name,
     project_name,
   } = req.body;
@@ -129,7 +129,7 @@ const updateExpense = async (req, res) => {
       paid_amount,
       due_amount,
       note,
-      JSON.stringify(ledger),
+      JSON.stringify(ledger_name),
       company_name,
       project_name,
       expenseId,

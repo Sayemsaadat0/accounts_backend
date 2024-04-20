@@ -10,7 +10,7 @@ const createIncome = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
     company_name,
     project_name,
   } = req.body;
@@ -28,7 +28,7 @@ const createIncome = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    JSON.stringify(ledger),
+    JSON.stringify(ledger_name),
     company_name,
     project_name,
   ];
@@ -107,7 +107,7 @@ const updateIncome = async (req, res) => {
     paid_amount,
     due_amount,
     note,
-    ledger,
+    ledger_name,
     company_name,
     project_name,
   } = req.body;
@@ -122,7 +122,7 @@ const updateIncome = async (req, res) => {
       paid_amount,
       due_amount,
       note,
-      JSON.stringify(ledger),
+      JSON.stringify(ledger_name),
       company_name,
       project_name,
       incomeId,
