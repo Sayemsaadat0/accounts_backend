@@ -32,6 +32,32 @@ const loginUser = async (req, res) => {
       // If passwords match, login successful
       if (result) {
         res.status(200).json({ message: "Login successful", user });
+
+        // add a default company when user created
+        const createCompany = async (req, res) => {
+          const uniqueId = generateUniqueId();
+          const company_code = "48AAMSMS";
+          const company_name = "Personal";
+          const company_address = "Demo Address";
+          const sql =
+            "INSERT INTO companies (id,company_code, company_name, company_address) VALUES (?,?, ?, ?)";
+          connection.query(
+            sql,
+            [uniqueId, company_code, company_name, company_address],
+            (err, result) => {
+              if (err) {
+                console.error("Error creating company: " + err.message);
+                res.status(500).json({ error: "Error creating company" });
+                return;
+              }
+              res.status(201).json({
+                message: "Company created successfully",
+                companyId: result.insertId,
+              });
+            }
+          );
+        };
+        createCompany();
       } else {
         // If passwords don't match, login failed
         res.status(401).json({ error: "Invalid credentials" });
