@@ -134,8 +134,21 @@ const getTotalBalance = async (req, res) => {
                       }
                       totalBalance += fixedAssetsAmount;
 
-                      // Send the final total balance as response
-                      res.status(200).json({ totalBalance });
+                      // Get total incomes amount
+                      useCalculate(
+                        "incomes",
+                        "actual_amount",
+                        (err, incomesAmount) => {
+                          if (err) {
+                            res.status(500).json(err);
+                            return;
+                          }
+                          totalBalance += incomesAmount;
+
+                          // Send the final total balance as response
+                          res.status(200).json({ totalBalance });
+                        }
+                      );
                     }
                   );
                 }
