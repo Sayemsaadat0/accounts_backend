@@ -8,6 +8,7 @@ router.get(
   "/total-expense-amount",
   calculationController.getTotalExpenseAmount
 );
+router.get("/total-income-amount", calculationController.getTotalIncomeAmount);
 router.get("/total-sales-amount", calculationController.getTotalSalesAmount);
 router.get(
   "/total-fixed-assets-amount",

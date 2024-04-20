@@ -20,6 +20,15 @@ const getTotalExpenseAmount = async (req, res) => {
     res.status(200).json({ totalBalance });
   });
 };
+const getTotalIncomeAmount = async (req, res) => {
+  useCalculate("income", "actual_amount", (err, totalBalance) => {
+    if (err) {
+      res.status(500).json(err);
+      return;
+    }
+    res.status(200).json({ totalBalance });
+  });
+};
 const getTotalSalesAmount = async (req, res) => {
   useCalculate("sales", "actual_amount", (err, totalBalance) => {
     if (err) {
@@ -165,6 +174,7 @@ module.exports = {
   getTotalBalance,
   getTotalBankAmount,
   getTotalSalesAmount,
+  getTotalIncomeAmount,
   getTotalExpenseAmount,
   getTotalPurchaseAmount,
   getTotalFixedAssetsAmount,
