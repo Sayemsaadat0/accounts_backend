@@ -21,7 +21,7 @@ const getTotalExpenseAmount = async (req, res) => {
   });
 };
 const getTotalIncomeAmount = async (req, res) => {
-  useCalculate("income", "actual_amount", (err, totalBalance) => {
+  useCalculate("incomes", "actual_amount", (err, totalBalance) => {
     if (err) {
       res.status(500).json(err);
       return;
