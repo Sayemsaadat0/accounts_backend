@@ -18,7 +18,7 @@ const createSale = async (req, res) => {
   const {
     select_date,
     payment_type,
-    customer,
+    customer_name,
     paid_amount,
     actual_amount,
     due_amount,
@@ -29,7 +29,7 @@ const createSale = async (req, res) => {
   console.log({
     select_date,
     payment_type,
-    customer,
+    customer_name,
     paid_amount,
     actual_amount,
     due_amount,
@@ -40,14 +40,14 @@ const createSale = async (req, res) => {
     .split("T")[0];
 
   const sql =
-    "INSERT INTO sales (id, select_date, payment_type, customer, paid_amount, actual_amount, due_amount, note, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO sales (id, select_date, payment_type, customer_name, paid_amount, actual_amount, due_amount, note, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
   connection.query(
     sql,
     [
       uniqueId,
       formattedSelectedDate,
       payment_type,
-      customer,
+      customer_name,
       paid_amount,
       actual_amount,
       due_amount,
@@ -108,7 +108,7 @@ const updateSale = async (req, res) => {
   const {
     select_date,
     payment_type,
-    customer,
+    customer_name,
     paid_amount,
     actual_amount,
     due_amount,
@@ -117,13 +117,13 @@ const updateSale = async (req, res) => {
     project_name,
   } = req.body;
   const sql =
-    "UPDATE sales SET select_date = ?, payment_type = ?, customer = ?, paid_amount = ?, actual_amount = ?, due_amount = ?, note = ?, company_name = ?, project_name = ?,  WHERE id = ?";
+    "UPDATE sales SET select_date = ?, payment_type = ?, customer_name = ?, paid_amount = ?, actual_amount = ?, due_amount = ?, note = ?, company_name = ?, project_name = ?,  WHERE id = ?";
   connection.query(
     sql,
     [
       select_date,
       payment_type,
-      customer,
+      customer_name,
       paid_amount,
       actual_amount,
       due_amount,
