@@ -1,7 +1,11 @@
 const { connection } = require("../config");
 
 const useCalculate = (tableName, columnName, callback) => {
-  const sql = `SELECT ${columnName}, DATE_FORMAT(select_date, '%Y-%m') AS monthYear FROM ${tableName}`; // Include the dynamic column name and format the date to include month and year
+  // let date = "";
+  // if (columnName == "accounts") {
+  //   date = createdAt;
+  // }
+  const sql = `SELECT ${columnName}, DATE_FORMAT(createdAt, '%Y-%m') AS monthYear FROM ${tableName}`; // Include the dynamic column name and format the date to include month and year
   connection.query(sql, (err, results) => {
     if (err) {
       console.error(
@@ -16,6 +20,7 @@ const useCalculate = (tableName, columnName, callback) => {
       return accumulator + parseFloat(account[columnName]); // Access the column dynamically
     }, 0);
 
+    console.log(totalBalance);
     // Calculate monthly balances
     const monthlyBalances = {};
     results.forEach((account) => {
@@ -25,6 +30,7 @@ const useCalculate = (tableName, columnName, callback) => {
       }
       monthlyBalances[monthYear] += parseFloat(account[columnName]);
     });
+    // console.log(monthlyBalances); ok
 
     // Convert monthlyBalances object into an array of objects with monthName and monthlyBalance
     const monthlyBalanceData = Object.keys(monthlyBalances).map((monthYear) => {
@@ -38,6 +44,10 @@ const useCalculate = (tableName, columnName, callback) => {
       };
     });
 
+    console.log({
+      totalBalance: totalBalance,
+      monthlyBalances: monthlyBalanceData,
+    });
     // Call the callback function with the total balance, monthly balances, and month names
     callback(null, {
       totalBalance: totalBalance,

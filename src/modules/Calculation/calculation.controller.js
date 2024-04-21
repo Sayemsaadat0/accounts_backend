@@ -84,7 +84,7 @@ const getTotalBalance = async (req, res) => {
       res.status(500).json(err);
       return;
     }
-    totalBalance += accountsBalance;
+    totalBalance += accountsBalance.totalBalance;
 
     // Get total sales amount
     useCalculate("sales", "actual_amount", (err, salesAmount) => {
@@ -92,7 +92,7 @@ const getTotalBalance = async (req, res) => {
         res.status(500).json(err);
         return;
       }
-      totalBalance += salesAmount;
+      totalBalance += salesAmount.totalBalance;
 
       // Get total accounts payable amount
       useCalculate(
@@ -103,7 +103,7 @@ const getTotalBalance = async (req, res) => {
             res.status(500).json(err);
             return;
           }
-          totalBalance -= accountsPayableAmount;
+          totalBalance -= accountsPayableAmount.totalBalance;
 
           // Get total purchases amount
           useCalculate("purchase", "actual_amount", (err, purchaseAmount) => {
@@ -111,7 +111,7 @@ const getTotalBalance = async (req, res) => {
               res.status(500).json(err);
               return;
             }
-            totalBalance -= purchaseAmount;
+            totalBalance -= purchaseAmount.totalBalance;
 
             // Get total expenses amount
             useCalculate("expense", "actual_amount", (err, expenseAmount) => {
@@ -119,7 +119,7 @@ const getTotalBalance = async (req, res) => {
                 res.status(500).json(err);
                 return;
               }
-              totalBalance -= expenseAmount;
+              totalBalance -= expenseAmount.totalBalance;
 
               // Get total accounts receivable amount
               useCalculate(
@@ -130,7 +130,7 @@ const getTotalBalance = async (req, res) => {
                     res.status(500).json(err);
                     return;
                   }
-                  totalBalance += accountsReceivableAmount;
+                  totalBalance += accountsReceivableAmount.totalBalance;
 
                   // Get total fixed assets amount
                   useCalculate(
@@ -141,7 +141,7 @@ const getTotalBalance = async (req, res) => {
                         res.status(500).json(err);
                         return;
                       }
-                      totalBalance += fixedAssetsAmount;
+                      totalBalance += fixedAssetsAmount.totalBalance;
 
                       // Get total incomes amount
                       useCalculate(
@@ -152,9 +152,12 @@ const getTotalBalance = async (req, res) => {
                             res.status(500).json(err);
                             return;
                           }
-                          totalBalance += incomesAmount;
+                          totalBalance += incomesAmount.totalBalance;
 
                           // Send the final total balance as response
+
+                          console.log({ totalBalance });
+
                           res.status(200).json({ totalBalance });
                         }
                       );
