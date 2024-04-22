@@ -1,96 +1,42 @@
-const { connection } = require("../../config");
-
-const getTransactionAllData = async (req, res) => {
-  let { limit } = req.query;
-  limit = limit ? parseInt(limit) : null;
-  try {
-
-    const latestIncomes = await queryDatabase(
-      `SELECT *, 'incomes' as tableName FROM incomes ORDER BY createdAt DESC ${limit ? `LIMIT ${limit}` : ''}`
-    );
-    const latestExpenses = await queryDatabase(
-      `SELECT *, 'expenses' as tableName FROM expense ORDER BY createdAt DESC ${limit ? `LIMIT ${limit}` : ''}`
-    );
-    const latestPurchases = await queryDatabase(
-      `SELECT *, 'purchases' as tableName FROM purchase ORDER BY createdAt DESC ${limit ? `LIMIT ${limit}` : ''}`
-    );
-    const latestSales = await queryDatabase(
-      `SELECT *, 'sales' as tableName FROM sales ORDER BY createdAt DESC ${limit ? `LIMIT ${limit}` : ''}`
-    );
-    const latestFixedAssets = await queryDatabase(
-      `SELECT *, 'fixed_assets' as tableName FROM fixed_assets ORDER BY createdAt DESC ${limit ? `LIMIT ${limit}` : ''}`
-    );
-    const latestAccountsPayable = await queryDatabase(
-      `SELECT *, 'accounts_payable' as tableName FROM accounts_payable ORDER BY createdAt DESC ${limit ? `LIMIT ${limit}` : ''}`
-    );
-    const latestAccountsReceivable = await queryDatabase(
-      `SELECT *, 'accounts_receivable' as tableName FROM accounts_receivable ORDER BY createdAt DESC ${limit ? `LIMIT ${limit}` : ''}`
-    );
-
-    let allLatestData = [];
-    allLatestData = allLatestData.concat(
-      latestIncomes,
-      latestExpenses,
-      latestPurchases,
-      latestSales,
-      latestFixedAssets,
-      latestAccountsPayable,
-      latestAccountsReceivable
-    );
-
-    allLatestData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    res.status(200).json({ latestUpdatedRecords: allLatestData.slice(0, 10) });
-  } catch (error) {
-    console.error("Error retrieving data:", error);
-    res.status(500).json({ error: "Error retrieving data" });
-  }
-};
-
-const queryDatabase = (sqlQuery) => {
-  return new Promise((resolve, reject) => {
-    connection.query(sqlQuery, (err, results) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results);
-      }
-    });
-  });
-};
-
-const transactionController = {
-  getTransactionAllData,
-};
-module.exports = transactionController;
-
-
-
 // const { connection } = require("../../config");
 
 // const getTransactionAllData = async (req, res) => {
-//   let { limit, orderingBy, table_name } = req.query;
-//   limit = limit ? parseInt(limit) : null;
-  
 //   try {
-//     // Define an array of default table names
-//     const defaultTables = ['incomes', 'expenses', 'purchase', 'sales', 'fixed_assets', 'accounts_payable', 'accounts_receivable'];
-    
-//     // If table_name is provided, use it, otherwise, use the default tables
-//     const tables = table_name ? [table_name] : defaultTables;
-    
-//     let allLatestData = [];
+//     const latestIncomes = await queryDatabase(
+//       `SELECT *, 'incomes' as tableName FROM incomes ORDER BY createdAt DESC`
+//     );
+//     const latestExpenses = await queryDatabase(
+//       `SELECT *, 'expenses' as tableName FROM expense ORDER BY createdAt DESC`
+//     );
+//     const latestPurchases = await queryDatabase(
+//       `SELECT *, 'purchases' as tableName FROM purchase ORDER BY createdAt DESC`
+//     );
+//     const latestSales = await queryDatabase(
+//       `SELECT *, 'sales' as tableName FROM sales ORDER BY createdAt DESC`
+//     );
+//     const latestFixedAssets = await queryDatabase(
+//       `SELECT *, 'fixed_assets' as tableName FROM fixed_assets ORDER BY createdAt DESC`
+//     );
+//     const latestAccountsPayable = await queryDatabase(
+//       `SELECT *, 'accounts_payable' as tableName FROM accounts_payable ORDER BY createdAt DESC`
+//     );
+//     const latestAccountsReceivable = await queryDatabase(
+//       `SELECT *, 'accounts_receivable' as tableName FROM accounts_receivable ORDER BY createdAt DESC`
+//     );
 
-//     for (const tableName of tables) {
-//       // Generate SQL query with conditional orderingBy
-//       const sqlQuery = `SELECT *, '${tableName}' as tableName FROM ${tableName} ${orderingBy ? `ORDER BY ${orderingBy} DESC` : ''} ${limit ? `LIMIT ${limit}` : ''}`;
-//       const latestData = await queryDatabase(sqlQuery);
-      
-//       allLatestData = allLatestData.concat(latestData);
-//     }
+//     let allLatestData = [];
+//     allLatestData = allLatestData.concat(
+//       latestIncomes,
+//       latestExpenses,
+//       latestPurchases,
+//       latestSales,
+//       latestFixedAssets,
+//       latestAccountsPayable,
+//       latestAccountsReceivable
+//     );
 
 //     allLatestData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-//     res.status(200).json({ latestUpdatedRecords: allLatestData.slice(0, 10) });
+//     res.status(200).json({ latestUpdatedRecords: allLatestData });
 //   } catch (error) {
 //     console.error("Error retrieving data:", error);
 //     res.status(500).json({ error: "Error retrieving data" });
@@ -113,3 +59,68 @@ module.exports = transactionController;
 //   getTransactionAllData,
 // };
 // module.exports = transactionController;
+
+
+const { connection } = require("../../config");
+
+const getTransactionAllData = async (req, res) => {
+  try {
+    const paymentType = req.query.payment_type || ""; // Get payment_type from query parameters or set to empty string if not provided
+
+    // Construct SQL queries based on the payment_type parameter
+    const incomeQuery = `SELECT *, 'incomes' as tableName FROM incomes ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
+    const expenseQuery = `SELECT *, 'expenses' as tableName FROM expense ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
+    const purchaseQuery = `SELECT *, 'purchases' as tableName FROM purchase ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
+    const salesQuery = `SELECT *, 'sales' as tableName FROM sales ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
+    const fixedAssetsQuery = `SELECT *, 'fixed_assets' as tableName FROM fixed_assets ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
+    const accountsPayableQuery = `SELECT *, 'accounts_payable' as tableName FROM accounts_payable ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
+    const accountsReceivableQuery = `SELECT *, 'accounts_receivable' as tableName FROM accounts_receivable ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
+
+    // Execute queries
+    const latestIncomes = await queryDatabase(incomeQuery);
+    const latestExpenses = await queryDatabase(expenseQuery);
+    const latestPurchases = await queryDatabase(purchaseQuery);
+    const latestSales = await queryDatabase(salesQuery);
+    const latestFixedAssets = await queryDatabase(fixedAssetsQuery);
+    const latestAccountsPayable = await queryDatabase(accountsPayableQuery);
+    const latestAccountsReceivable = await queryDatabase(accountsReceivableQuery);
+
+    // Combine results
+    let allLatestData = [];
+    allLatestData = allLatestData.concat(
+      latestIncomes,
+      latestExpenses,
+      latestPurchases,
+      latestSales,
+      latestFixedAssets,
+      latestAccountsPayable,
+      latestAccountsReceivable
+    );
+
+    // Sort combined results by createdAt
+    allLatestData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    // Send response
+    res.status(200).json({ latestUpdatedRecords: allLatestData });
+  } catch (error) {
+    console.error("Error retrieving data:", error);
+    res.status(500).json({ error: "Error retrieving data" });
+  }
+};
+
+const queryDatabase = (sqlQuery) => {
+  return new Promise((resolve, reject) => {
+    connection.query(sqlQuery, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+const transactionController = {
+  getTransactionAllData,
+};
+module.exports = transactionController;

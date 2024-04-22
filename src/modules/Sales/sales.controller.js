@@ -39,8 +39,8 @@ const createSale = async (req, res) => {
     .toISOString()
     .split("T")[0];
 
-  const sql =
-    "INSERT INTO sales (id, select_date, payment_type, customer_name, paid_amount, actual_amount, due_amount, note, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  
+    
   connection.query(
     sql,
     [
