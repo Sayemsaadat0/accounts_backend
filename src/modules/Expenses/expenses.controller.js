@@ -53,21 +53,6 @@ const createExpense = async (req, res) => {
   });
 };
 
-// const getAllExpenses = async (req, res) => {
-//   const sql = "SELECT * FROM expense";
-//   connection.query(sql, (err, results) => {
-//     if (err) {
-//       console.error("Error getting expenses: " + err.message);
-//       res.status(500).json({ error: "Error getting expenses" });
-//       return;
-//     }
-
-//     results.forEach((result) => {
-//       result.ledger = JSON.parse(result.ledger);
-//     });
-//     res.status(200).json(results);
-//   });
-// };
 const getAllExpenses = async (req, res) => {
   const { payment_type, ledger_name, company_name, project_name } = req.query;
 

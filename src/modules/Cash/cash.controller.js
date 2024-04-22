@@ -46,7 +46,7 @@ const updateCashRecord = async (req, res) => {
   });
 };
 
-const cashController = {
+ const cashController = {
   getAllCashRecords,
   updateCashRecord,
   createCashRecord,
