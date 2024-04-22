@@ -1,7 +1,7 @@
 const { connection } = require("../../config");
 
 const getTransactionAllData = async (req, res) => {
-  let { limit, orderingBy, table_name } = req.query;
+  let { limit } = req.query;
   limit = limit ? parseInt(limit) : null;
   try {
 
