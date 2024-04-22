@@ -27,7 +27,7 @@ const createAccountsPayable = async (req, res) => {
     .toISOString()
     .split("T")[0];
 
-    const sql =
+  const sql =
     "INSERT INTO accounts_payable (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   const values = [

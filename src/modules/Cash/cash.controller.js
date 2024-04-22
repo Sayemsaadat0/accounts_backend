@@ -1,46 +1,31 @@
 const { connection } = require("../../config");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
-const getAllCash = async (req, res) => {
+const getAllCashRecords = async (req, res) => {
   const sql = "SELECT * FROM cash";
   connection.query(sql, (err, results) => {
     if (err) {
-      console.error("Error getting cash data: " + err.message);
-      res.status(500).json({ error: "Error getting cash data" });
+      console.error("Error getting cash records: " + err.message);
+      res.status(500).json({ error: "Error getting cash records" });
       return;
     }
     res.status(200).json(results);
   });
 };
 
-const createCash = async (req, res) => {
-  const uniqueId = generateUniqueId();
+const createCashRecord = async (req, res) => {
   const { amount } = req.body;
-  const checkSql = "SELECT COUNT(*) AS count FROM cash";
-  connection.query(checkSql, (err, result) => {
-
-    // if (err) {
-    //   console.error("Error checking cash data: " + err.message);
-    //   res.status(500).json({ error: "Error checking cash data" });
-    //   return;
-    // }
-    // If there is already cash data, return an error
-    // if (result[0].count > 0) {
-    //   res.status(400).json({ error: "Cash data already exists" });
-    //   return;
-    // }
-
-    const sql = "INSERT INTO cash (id, amount) VALUES (?, ?)";
-    connection.query(sql, [uniqueId, amount], (err, result) => {
-      if (err) {
-        console.error("Error creating cash data: " + err.message);
-        res.status(500).json({ error: "Error creating cash data" });
-        return;
-      }
-      res.status(201).json({
-        message: "Cash data created successfully",
-        cashId: result.insertId,
-      });
+  const uniqueId = generateUniqueId();
+  const sql = "INSERT INTO cash (id, amount ) VALUES (?, ?)";
+  connection.query(sql, [uniqueId, amount], (err, result) => {
+    if (err) {
+      console.error("Error creating cash record: " + err.message);
+      res.status(500).json({ error: "Error creating cash record" });
+      return;
+    }
+    res.status(201).json({
+      message: "Cash record created successfully",
+      cashId: result.insertId,
     });
   });
 };
@@ -98,8 +83,8 @@ const updateCash = async (req, res) => {
 };
 
 const cashController = {
-  getAllCash,
-  createCash,
+  getAllCashRecords,
+  createCashRecord,
   updateCash,
   deleteCash,
   getCashById,
