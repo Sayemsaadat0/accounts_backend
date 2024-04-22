@@ -28,6 +28,7 @@ const {
 const {
   calculationRoutes,
 } = require("../modules/Calculation/calculation.routes");
+const { cashRoutes } = require("../modules/Cash/cash.router");
 
 const router = express.Router();
 
@@ -107,6 +108,10 @@ const moduleRoutes = [
   {
     path: "/calculation",
     route: calculationRoutes,
+  },
+  {
+    path: "/cash",
+    route: cashRoutes,
   },
 ];
 
