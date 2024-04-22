@@ -13,20 +13,12 @@ const createExpense = async (req, res) => {
     ledger_name,
     company_name,
     project_name,
+    account_id,
   } = req.body;
-  console.log({
-    select_date,
-    payment_type,
-    actual_amount,
-    paid_amount,
-    due_amount,
-    note,
-    ledger_name,
-  });
 
   const formattedDate = new Date(select_date).toISOString().split("T")[0];
   const sql =
-    "INSERT INTO expense (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO expense (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const values = [
     uniqueId,
     formattedDate,
@@ -40,15 +32,58 @@ const createExpense = async (req, res) => {
     project_name,
   ];
 
-  connection.query(sql, values, (err, result) => {
+  // Deduct expense from the selected account balance
+  let updateOperator = "-";
+  if (
+    payment_type === "income" ||
+    payment_type === "account_Recivable" ||
+    payment_type === "sales"
+  ) {
+    updateOperator = "+";
+  }
+  console.log("Update Operator:", updateOperator);
+
+  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
+  const updateBalanceValues = [actual_amount, account_id];
+  console.log("Update Balance SQL:", updateBalanceSql);
+  console.log("Update Balance Values:", updateBalanceValues);
+
+  connection.beginTransaction(function (err) {
     if (err) {
-      console.error("Error creating expense: " + err.message);
+      console.error("Error starting transaction: " + err.message);
       res.status(500).json({ error: "Error creating expense" });
       return;
     }
-    res.status(201).json({
-      message: "Expense created successfully",
-      expenseId: result.insertId,
+
+    connection.query(sql, values, function (err, result) {
+      if (err) {
+        return connection.rollback(function () {
+          console.error("Error creating expense: " + err.message);
+          res.status(500).json({ error: "Error creating expense" });
+        });
+      }
+
+      connection.query(updateBalanceSql, updateBalanceValues, function (err) {
+        if (err) {
+          return connection.rollback(function () {
+            console.error("Error updating account balance: " + err.message);
+            res.status(500).json({ error: "Error creating expense" });
+          });
+        }
+
+        connection.commit(function (err) {
+          if (err) {
+            return connection.rollback(function () {
+              console.error("Error committing transaction: " + err.message);
+              res.status(500).json({ error: "Error creating expense" });
+            });
+          }
+          res.status(201).json({
+            message: "Expense created successfully",
+            expenseId: result.insertId,
+          });
+        });
+      });
     });
   });
 };
@@ -71,19 +106,22 @@ const getAllExpenses = async (req, res) => {
     sql += " AND project_name = ?";
   }
 
-  connection.query(sql, [payment_type, ledger_name, company_name, project_name].filter(Boolean), (err, results) => {
-    if (err) {
-      console.error("Error getting expenses: " + err.message);
-      return res.status(500).json({ error: "Error getting expenses" });
+  connection.query(
+    sql,
+    [payment_type, ledger_name, company_name, project_name].filter(Boolean),
+    (err, results) => {
+      if (err) {
+        console.error("Error getting expenses: " + err.message);
+        return res.status(500).json({ error: "Error getting expenses" });
+      }
+
+      results.forEach((result) => {
+        result.ledger = JSON.parse(result.ledger);
+      });
+      res.status(200).json(results);
     }
-
-    results.forEach((result) => {
-      result.ledger = JSON.parse(result.ledger);
-    });
-    res.status(200).json(results);
-  });
+  );
 };
-
 
 const getExpenseById = async (req, res) => {
   const expenseId = req.params.id;
@@ -103,7 +141,6 @@ const getExpenseById = async (req, res) => {
     res.status(200).json(result);
   });
 };
-
 
 const deleteExpense = async (req, res) => {
   const expenseId = req.params.id;
