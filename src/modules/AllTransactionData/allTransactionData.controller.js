@@ -65,9 +65,7 @@ const { connection } = require("../../config");
 
 const getTransactionAllData = async (req, res) => {
   try {
-    const paymentType = req.query.payment_type || ""; // Get payment_type from query parameters or set to empty string if not provided
-
-    // Construct SQL queries based on the payment_type parameter
+    const paymentType = req.query.payment_type || ""; 
     const incomeQuery = `SELECT *, 'incomes' as tableName FROM incomes ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
     const expenseQuery = `SELECT *, 'expenses' as tableName FROM expense ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
     const purchaseQuery = `SELECT *, 'purchases' as tableName FROM purchase ${paymentType ? `WHERE payment_type = '${paymentType}'` : ""} ORDER BY createdAt DESC`;
