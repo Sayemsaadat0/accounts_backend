@@ -14,6 +14,7 @@ const createAccountsReceivable = async (req, res) => {
     company_name,
     project_name,
     account_id,
+    transaction_type,
   } = req.body;
 
   const formattedSelectedDate = new Date(select_date)

@@ -14,7 +14,9 @@ const createExpense = async (req, res) => {
     company_name,
     project_name,
     account_id,
+    transaction_type,
   } = req.body;
+  console.log("--------------------", { payment_type });
 
   const formattedDate = new Date(select_date).toISOString().split("T")[0];
   const sql =
@@ -35,9 +37,9 @@ const createExpense = async (req, res) => {
   // Deduct expense from the selected account balance
   let updateOperator = "-";
   if (
-    payment_type === "income" ||
-    payment_type === "account_Recivable" ||
-    payment_type === "sales"
+    transaction_type === "income" ||
+    transaction_type === "account_Recivable" ||
+    transaction_type === "sales"
   ) {
     updateOperator = "+";
   }

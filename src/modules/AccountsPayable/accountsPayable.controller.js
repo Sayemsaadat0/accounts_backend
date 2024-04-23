@@ -13,6 +13,7 @@ const createAccountsPayable = async (req, res) => {
     ledger_name,
     company_name,
     project_name,
+    transaction_type,
   } = req.body;
 
   const formattedSelectedDate = new Date(select_date)
@@ -38,9 +39,9 @@ const createAccountsPayable = async (req, res) => {
   // Update balance based on payment type
   let updateOperator = "-";
   if (
-    payment_type === "income" ||
-    payment_type === "account_Recivable" ||
-    payment_type === "sales"
+    transaction_type === "income" ||
+    transaction_type === "account_Recivable" ||
+    transaction_type === "sales"
   ) {
     updateOperator = "+";
   }

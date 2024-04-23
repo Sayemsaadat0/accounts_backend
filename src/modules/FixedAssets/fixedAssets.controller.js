@@ -27,7 +27,8 @@ const createFixedAsset = async (req, res) => {
     quantity,
     company_name,
     project_name,
-    account_id, // Added account_id for updating the account balance
+    account_id,
+    transaction_type, // Added account_id for updating the account balance
   } = req.body;
 
   const formattedSelectedDate = new Date(select_date)
@@ -42,9 +43,9 @@ const createFixedAsset = async (req, res) => {
   // Deduct expense from the selected account balance for expenses
   let updateOperator = "-";
   if (
-    payment_type === "income" ||
-    payment_type === "account_Recivable" ||
-    payment_type === "sales"
+    transaction_type === "income" ||
+    transaction_type === "account_Recivable" ||
+    transaction_type === "sales"
   ) {
     updateOperator = "+";
   }

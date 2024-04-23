@@ -12,7 +12,6 @@ const getAllPurchases = async (req, res) => {
   });
 };
 
-
 const createPurchase = async (req, res) => {
   const uniqueId = generateUniqueId();
   const {
@@ -26,6 +25,7 @@ const createPurchase = async (req, res) => {
     company_name,
     project_name,
     account_id,
+    transaction_type,
   } = req.body;
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
@@ -49,9 +49,9 @@ const createPurchase = async (req, res) => {
   // Deduct purchase amount from the selected account balance
   let updateOperator = "-";
   if (
-    payment_type === "expense" ||
-    payment_type === "account_payable" ||
-    payment_type === "purchases"
+    transaction_type === "expense" ||
+    transaction_type === "account_payable" ||
+    transaction_type === "purchases"
   ) {
     updateOperator = "+";
   }
