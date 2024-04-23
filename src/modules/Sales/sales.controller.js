@@ -17,8 +17,8 @@ const createSale = async (req, res) => {
   const uniqueId = generateUniqueId();
   const {
     select_date,
-    
-account_id,
+
+    account_id,
     payment_type,
     customer_name,
     paid_amount,
@@ -51,7 +51,7 @@ account_id,
   let updateOperator = "+";
 
   const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
-  const updateBalanceValues = [paid_amount, account_id];
+  const updateBalanceValues = [actual_amount, account_id];
 
   connection.beginTransaction(function (err) {
     if (err) {
