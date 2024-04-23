@@ -26,47 +26,69 @@ const createSale = async (req, res) => {
     company_name,
     project_name,
   } = req.body;
-  console.log({
-    select_date,
+
+  const formattedSelectedDate = new Date(select_date)
+    .toISOString()
+    .split("T")[0];
+  const sql =
+    "INSERT INTO sales (id, select_date, payment_type, customer_name, paid_amount, actual_amount, due_amount, note, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const values = [
+    uniqueId,
+    formattedSelectedDate,
     payment_type,
     customer_name,
     paid_amount,
     actual_amount,
     due_amount,
     note,
-  });
-  const formattedSelectedDate = new Date(select_date)
-    .toISOString()
-    .split("T")[0];
+    company_name,
+    project_name,
+  ];
 
-  
-    
-  connection.query(
-    sql,
-    [
-      uniqueId,
-      formattedSelectedDate,
-      payment_type,
-      customer_name,
-      paid_amount,
-      actual_amount,
-      due_amount,
-      note,
-      company_name,
-      project_name,
-    ],
-    (err, result) => {
-      if (err) {
-        console.error("Error creating sale: " + err.message);
-        res.status(500).json({ error: "Error creating sale" });
-        return;
-      }
-      res.status(201).json({
-        message: "Sale created successfully",
-        saleId: result.insertId,
-      });
+  // Add paid amount to the selected account balance
+  let updateOperator = "+";
+
+  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
+  const updateBalanceValues = [paid_amount, account_id];
+
+  connection.beginTransaction(function (err) {
+    if (err) {
+      console.error("Error starting transaction: " + err.message);
+      res.status(500).json({ error: "Error creating sale" });
+      return;
     }
-  );
+
+    connection.query(sql, values, function (err, result) {
+      if (err) {
+        return connection.rollback(function () {
+          console.error("Error creating sale: " + err.message);
+          res.status(500).json({ error: "Error creating sale" });
+        });
+      }
+
+      connection.query(updateBalanceSql, updateBalanceValues, function (err) {
+        if (err) {
+          return connection.rollback(function () {
+            console.error("Error updating account balance: " + err.message);
+            res.status(500).json({ error: "Error creating sale" });
+          });
+        }
+
+        connection.commit(function (err) {
+          if (err) {
+            return connection.rollback(function () {
+              console.error("Error committing transaction: " + err.message);
+              res.status(500).json({ error: "Error creating sale" });
+            });
+          }
+          res.status(201).json({
+            message: "Sale created successfully",
+            saleId: result.insertId,
+          });
+        });
+      });
+    });
+  });
 };
 
 const getSaleById = async (req, res) => {

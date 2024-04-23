@@ -13,6 +13,7 @@ const createIncome = async (req, res) => {
     ledger_name,
     company_name,
     project_name,
+    account_id,
   } = req.body;
 
   // Convert select_date to the correct format
@@ -33,18 +34,51 @@ const createIncome = async (req, res) => {
     project_name,
   ];
 
-  connection.query(sql, values, (err, result) => {
+  // Add or subtract income amount from account balance
+  const updateOperator = "+";
+  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
+  const updateBalanceValues = [actual_amount, account_id];
+
+  connection.beginTransaction(function (err) {
     if (err) {
-      console.error("Error creating income: " + err.message);
+      console.error("Error starting transaction: " + err.message);
       res.status(500).json({ error: "Error creating income" });
       return;
     }
-    res.status(201).json({
-      message: "Income created successfully",
-      incomeId: result.insertId,
+
+    connection.query(sql, values, function (err, result) {
+      if (err) {
+        return connection.rollback(function () {
+          console.error("Error creating income: " + err.message);
+          res.status(500).json({ error: "Error creating income" });
+        });
+      }
+
+      connection.query(updateBalanceSql, updateBalanceValues, function (err) {
+        if (err) {
+          return connection.rollback(function () {
+            console.error("Error updating account balance: " + err.message);
+            res.status(500).json({ error: "Error creating income" });
+          });
+        }
+
+        connection.commit(function (err) {
+          if (err) {
+            return connection.rollback(function () {
+              console.error("Error committing transaction: " + err.message);
+              res.status(500).json({ error: "Error creating income" });
+            });
+          }
+          res.status(201).json({
+            message: "Income created successfully",
+            incomeId: result.insertId,
+          });
+        });
+      });
     });
   });
 };
+
 const getAllIncomes = async (req, res) => {
   const sql = "SELECT * FROM incomes";
   connection.query(sql, (err, results) => {

@@ -14,15 +14,7 @@ const createAccountsPayable = async (req, res) => {
     company_name,
     project_name,
   } = req.body;
-  console.log({
-    select_date,
-    payment_type,
-    actual_amount,
-    paid_amount,
-    due_amount,
-    note,
-    ledger_name,
-  });
+
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
     .split("T")[0];
@@ -43,15 +35,56 @@ const createAccountsPayable = async (req, res) => {
     project_name,
   ];
 
-  connection.query(sql, values, (err, result) => {
+  // Update balance based on payment type
+  let updateOperator = "-";
+  if (
+    payment_type === "income" ||
+    payment_type === "account_Recivable" ||
+    payment_type === "sales"
+  ) {
+    updateOperator = "+";
+  }
+
+  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ?`;
+
+  connection.beginTransaction(function (err) {
     if (err) {
-      console.error("Error creating accounts payable: " + err.message);
+      console.error("Error starting transaction: " + err.message);
       res.status(500).json({ error: "Error creating accounts payable" });
       return;
     }
-    res.status(201).json({
-      message: "Accounts payable created successfully",
-      accountsPayableId: result.insertId,
+
+    connection.query(sql, values, function (err, result) {
+      if (err) {
+        return connection.rollback(function () {
+          console.error("Error creating accounts payable: " + err.message);
+          res.status(500).json({ error: "Error creating accounts payable" });
+        });
+      }
+
+      connection.query(updateBalanceSql, [actual_amount], function (err) {
+        if (err) {
+          return connection.rollback(function () {
+            console.error("Error updating account balance: " + err.message);
+            res.status(500).json({ error: "Error creating accounts payable" });
+          });
+        }
+
+        connection.commit(function (err) {
+          if (err) {
+            return connection.rollback(function () {
+              console.error("Error committing transaction: " + err.message);
+              res
+                .status(500)
+                .json({ error: "Error creating accounts payable" });
+            });
+          }
+          res.status(201).json({
+            message: "Accounts payable created successfully",
+            accountsPayableId: result.insertId,
+          });
+        });
+      });
     });
   });
 };

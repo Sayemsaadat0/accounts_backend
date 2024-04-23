@@ -1,18 +1,6 @@
 const { connection } = require("../../config");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
-const getAllPurchases = async (req, res) => {
-  const sql = "SELECT * FROM purchase";
-  connection.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error getting purchases: " + err.message);
-      res.status(500).json({ error: "Error getting purchases" });
-      return;
-    }
-    res.status(200).json(results);
-  });
-};
-
 const createPurchase = async (req, res) => {
   const uniqueId = generateUniqueId();
   const {
@@ -25,40 +13,81 @@ const createPurchase = async (req, res) => {
     supplier_name,
     company_name,
     project_name,
+    account_id,
   } = req.body;
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
     .split("T")[0];
 
   const sql =
-    "INSERT INTO purchase (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, supplier_name, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  connection.query(
-    sql,
-    [
-      uniqueId,
-      formattedSelectedDate,
-      payment_type,
-      actual_amount,
-      paid_amount,
-      due_amount,
-      note,
-      supplier_name,
-      ,
-      company_name,
-      project_name,
-    ],
-    (err, result) => {
-      if (err) {
-        console.error("Error creating purchase: " + err.message);
-        res.status(500).json({ error: "Error creating purchase" });
-        return;
-      }
-      res.status(201).json({
-        message: "Purchase created successfully",
-        purchaseId: result.insertId,
-      });
+    "INSERT INTO purchase (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, supplier_name, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const values = [
+    uniqueId,
+    formattedSelectedDate,
+    payment_type,
+    actual_amount,
+    paid_amount,
+    due_amount,
+    note,
+    supplier_name,
+    company_name,
+    project_name,
+  ];
+
+  // Deduct purchase amount from the selected account balance
+  let updateOperator = "-";
+  if (
+    payment_type === "expense" ||
+    payment_type === "account_payable" ||
+    payment_type === "purchases"
+  ) {
+    updateOperator = "+";
+  }
+  console.log("Update Operator:", updateOperator);
+
+  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
+  const updateBalanceValues = [actual_amount, account_id];
+  console.log("Update Balance SQL:", updateBalanceSql);
+  console.log("Update Balance Values:", updateBalanceValues);
+
+  connection.beginTransaction(function (err) {
+    if (err) {
+      console.error("Error starting transaction: " + err.message);
+      res.status(500).json({ error: "Error creating purchase" });
+      return;
     }
-  );
+
+    connection.query(sql, values, function (err, result) {
+      if (err) {
+        return connection.rollback(function () {
+          console.error("Error creating purchase: " + err.message);
+          res.status(500).json({ error: "Error creating purchase" });
+        });
+      }
+
+      connection.query(updateBalanceSql, updateBalanceValues, function (err) {
+        if (err) {
+          return connection.rollback(function () {
+            console.error("Error updating account balance: " + err.message);
+            res.status(500).json({ error: "Error creating purchase" });
+          });
+        }
+
+        connection.commit(function (err) {
+          if (err) {
+            return connection.rollback(function () {
+              console.error("Error committing transaction: " + err.message);
+              res.status(500).json({ error: "Error creating purchase" });
+            });
+          }
+          res.status(201).json({
+            message: "Purchase created successfully",
+            purchaseId: result.insertId,
+          });
+        });
+      });
+    });
+  });
 };
 
 const getPurchaseById = async (req, res) => {
