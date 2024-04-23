@@ -31,6 +31,16 @@ const createFixedAsset = async (req, res) => {
     transaction_type, // Added account_id for updating the account balance
   } = req.body;
 
+  // Validate if select_date and deduction_month are valid date strings
+  const isValidDate = (dateString) => {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    return regex.test(dateString);
+  };
+
+  if (!isValidDate(select_date) || !isValidDate(deduction_month)) {
+    return res.status(400).json({ error: "Invalid date format" });
+  }
+
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
     .split("T")[0];
@@ -42,13 +52,6 @@ const createFixedAsset = async (req, res) => {
 
   // Deduct expense from the selected account balance for expenses
   let updateOperator = "-";
-  if (
-    transaction_type === "income" ||
-    transaction_type === "account_Recivable" ||
-    transaction_type === "sales"
-  ) {
-    updateOperator = "+";
-  }
 
   connection.beginTransaction(function (err) {
     if (err) {
