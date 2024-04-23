@@ -1,5 +1,17 @@
 const { connection } = require("../../config");
 const generateUniqueId = require("../../middleware/generateUniqueId");
+const getAllPurchases = async (req, res) => {
+  const sql = "SELECT * FROM purchase";
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error getting purchases: " + err.message);
+      res.status(500).json({ error: "Error getting purchases" });
+      return;
+    }
+    res.status(200).json(results);
+  });
+};
+
 
 const createPurchase = async (req, res) => {
   const uniqueId = generateUniqueId();
