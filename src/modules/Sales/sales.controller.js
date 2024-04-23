@@ -17,6 +17,8 @@ const createSale = async (req, res) => {
   const uniqueId = generateUniqueId();
   const {
     select_date,
+    
+account_id,
     payment_type,
     customer_name,
     paid_amount,
