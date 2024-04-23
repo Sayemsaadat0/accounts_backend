@@ -10,7 +10,9 @@ const { connection } = require("../config");
  */
 const useCalculate = (tableName, columnName, callback) => {
   // Construct SQL query to retrieve data including the dynamic column name and formatted date
-  const sql = `SELECT ${columnName}, DATE_FORMAT(select_date, '%Y-%m') AS monthYear FROM ${tableName}`;
+  const sql = `SELECT ${columnName}, DATE_FORMAT(${
+    tableName === "accounts" || "cash" ? "createdAt" : "select_date"
+  }, '%Y-%m') AS monthYear FROM ${tableName}`;
   // Execute the SQL query
   connection.query(sql, (err, results) => {
     if (err) {
