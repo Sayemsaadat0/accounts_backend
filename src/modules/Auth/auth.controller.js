@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const createUser = async (req, res) => {
   const uniqueId = generateUniqueId();
   const { username, email, password } = req.body;
-  console.log({ username, email, password });
 
   // Check if the email is already registered
   const emailCheckSql = "SELECT * FROM users WHERE email = ?";
@@ -49,7 +48,6 @@ const createUser = async (req, res) => {
   });
 };
 
-// function
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -80,33 +78,11 @@ const loginUser = async (req, res) => {
 
       // If passwords match, login successful
       if (result) {
-        res.status(200).json({ message: "Login successful", user });
-
-        // add a default company when user created
-        const createCompany = async (req, res) => {
-          const uniqueId = generateUniqueId();
-          const company_code = "48AAMSMS";
-          const company_name = "Personal";
-          const company_address = "Demo Address";
-          const sql =
-            "INSERT INTO companies (id,company_code, company_name, company_address) VALUES (?,?, ?, ?)";
-          connection.query(
-            sql,
-            [uniqueId, company_code, company_name, company_address],
-            (err, result) => {
-              if (err) {
-                console.error("Error creating company: " + err.message);
-                res.status(500).json({ error: "Error creating company" });
-                return;
-              }
-              res.status(201).json({
-                message: "Company created successfully",
-                companyId: result.insertId,
-              });
-            }
-          );
-        };
-        createCompany();
+        // Create a session to indicate user is logged in
+        console.log(user.id);
+        req.session.userId = user.id;
+        const uId = user.id;
+        res.status(200).json({ message: "Login successful", uId });
       } else {
         // If passwords don't match, login failed
         res.status(401).json({ error: "Invalid credentials" });
@@ -114,41 +90,6 @@ const loginUser = async (req, res) => {
     });
   });
 };
-// const loginUser = async (req, res) => {
-//   const { email, password } = req.body;
-
-//   console.log({ email, password });
-
-//   try {
-//     const rows = await new Promise((resolve, reject) => {
-//       const sql = "SELECT * FROM users WHERE email = ?";
-//       connection.query(sql, [email], (err, rows) => {
-//         if (err) {
-//           reject(err);
-//         } else {
-//           resolve(rows);
-//         }
-//       });
-//     });
-
-//     if (rows.length === 0) {
-//       res.status(404).json({ error: "User not found" });
-//       return;
-//     }
-
-//     const user = rows[0];
-//     const match = await bcrypt.compare(password, user.password);
-
-//     if (match) {
-//       res.status(200).json({ message: "Login successful", user });
-//     } else {
-//       res.status(401).json({ error: "Invalid credentials" });
-//     }
-//   } catch (err) {
-//     console.error("Error retrieving user: " + err.message);
-//     res.status(500).json({ error: "Error retrieving user" });
-//   }
-// };
 
 const updateProfileData = async (req, res) => {
   const userId = req.params.id;
