@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const createIncome = async (req, res) => {
@@ -13,6 +14,8 @@ const createIncome = async (req, res) => {
     ledger_name,
     company_name,
     project_name,
+    account_id,
+    transaction_type,
   } = req.body;
 
   // Convert select_date to the correct format
@@ -33,18 +36,30 @@ const createIncome = async (req, res) => {
     project_name,
   ];
 
-  connection.query(sql, values, (err, result) => {
-    if (err) {
-      console.error("Error creating income: " + err.message);
-      res.status(500).json({ error: "Error creating income" });
-      return;
-    }
-    res.status(201).json({
-      message: "Income created successfully",
-      incomeId: result.insertId,
+  useManageBankAccount({
+    transaction_type,
+    payment_type,
+    actual_amount,
+    account_id,
+    sql,
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
+      res.status(201).json({
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
+      });
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
     });
-  });
 };
+
 const getAllIncomes = async (req, res) => {
   const sql = "SELECT * FROM incomes";
   connection.query(sql, (err, results) => {

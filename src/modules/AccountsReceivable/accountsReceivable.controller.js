@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const createAccountsReceivable = async (req, res) => {
@@ -13,22 +14,16 @@ const createAccountsReceivable = async (req, res) => {
     ledger_name,
     company_name,
     project_name,
+    account_id,
+    transaction_type,
   } = req.body;
-  console.log({
-    select_date,
-    payment_type,
-    actual_amount,
-    paid_amount,
-    due_amount,
-    note,
-    ledger_name,
-  });
+
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
     .split("T")[0];
 
   const sql =
-    "INSERT INTO accounts_receivable (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO accounts_receivable (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const values = [
     uniqueId,
     formattedSelectedDate,
@@ -42,17 +37,28 @@ const createAccountsReceivable = async (req, res) => {
     project_name,
   ];
 
-  connection.query(sql, values, (err, result) => {
-    if (err) {
-      console.error("Error creating accounts receivable: " + err.message);
-      res.status(500).json({ error: "Error creating accounts receivable" });
-      return;
-    }
-    res.status(201).json({
-      message: "Accounts receivable created successfully",
-      accountsPayableId: result.insertId,
+  useManageBankAccount({
+    transaction_type,
+    actual_amount,
+    payment_type,
+    account_id,
+    sql,
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
+      res.status(201).json({
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
+      });
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
     });
-  });
 };
 
 const getAllAccountsReceivable = async (req, res) => {

@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllSales = async (req, res) => {
@@ -17,6 +18,8 @@ const createSale = async (req, res) => {
   const uniqueId = generateUniqueId();
   const {
     select_date,
+    transaction_type,
+    account_id,
     payment_type,
     customer_name,
     paid_amount,
@@ -26,47 +29,47 @@ const createSale = async (req, res) => {
     company_name,
     project_name,
   } = req.body;
-  console.log({
-    select_date,
+
+  const formattedSelectedDate = new Date(select_date)
+    .toISOString()
+    .split("T")[0];
+  const sql =
+    "INSERT INTO sales (id, select_date, payment_type, customer_name, paid_amount, actual_amount, due_amount, note, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const values = [
+    uniqueId,
+    formattedSelectedDate,
     payment_type,
     customer_name,
     paid_amount,
     actual_amount,
     due_amount,
     note,
-  });
-  const formattedSelectedDate = new Date(select_date)
-    .toISOString()
-    .split("T")[0];
+    company_name,
+    project_name,
+  ];
 
-  
-    
-  connection.query(
+  useManageBankAccount({
+    transaction_type,
+    payment_type,
+    actual_amount,
+    account_id,
     sql,
-    [
-      uniqueId,
-      formattedSelectedDate,
-      payment_type,
-      customer_name,
-      paid_amount,
-      actual_amount,
-      due_amount,
-      note,
-      company_name,
-      project_name,
-    ],
-    (err, result) => {
-      if (err) {
-        console.error("Error creating sale: " + err.message);
-        res.status(500).json({ error: "Error creating sale" });
-        return;
-      }
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
       res.status(201).json({
-        message: "Sale created successfully",
-        saleId: result.insertId,
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
       });
-    }
-  );
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
+    });
 };
 
 const getSaleById = async (req, res) => {

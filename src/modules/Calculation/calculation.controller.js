@@ -17,6 +17,7 @@ const getTotalExpenseAmount = async (req, res) => {
       res.status(500).json(err);
       return;
     }
+    console.log("Sales data", { totalBalance });
     res.status(200).json({ totalBalance });
   });
 };
@@ -35,6 +36,7 @@ const getTotalSalesAmount = async (req, res) => {
       res.status(500).json(err);
       return;
     }
+
     res.status(200).json({ totalBalance });
   });
 };
@@ -87,7 +89,7 @@ const getTotalBalance = async (req, res) => {
     totalBalance += accountsBalance.totalBalance;
 
     // Get total sales amount
-    useCalculate("sales", "actual_amount", (err, salesAmount) => {
+    useCalculate("cash", "amount", (err, salesAmount) => {
       if (err) {
         res.status(500).json(err);
         return;
@@ -95,80 +97,7 @@ const getTotalBalance = async (req, res) => {
       totalBalance += salesAmount.totalBalance;
 
       // Get total accounts payable amount
-      useCalculate(
-        "accounts_payable",
-        "actual_amount",
-        (err, accountsPayableAmount) => {
-          if (err) {
-            res.status(500).json(err);
-            return;
-          }
-          totalBalance -= accountsPayableAmount.totalBalance;
-
-          // Get total purchases amount
-          useCalculate("purchase", "actual_amount", (err, purchaseAmount) => {
-            if (err) {
-              res.status(500).json(err);
-              return;
-            }
-            totalBalance -= purchaseAmount.totalBalance;
-
-            // Get total expenses amount
-            useCalculate("expense", "actual_amount", (err, expenseAmount) => {
-              if (err) {
-                res.status(500).json(err);
-                return;
-              }
-              totalBalance -= expenseAmount.totalBalance;
-
-              // Get total accounts receivable amount
-              useCalculate(
-                "accounts_receivable",
-                "actual_amount",
-                (err, accountsReceivableAmount) => {
-                  if (err) {
-                    res.status(500).json(err);
-                    return;
-                  }
-                  totalBalance += accountsReceivableAmount.totalBalance;
-
-                  // Get total fixed assets amount
-                  useCalculate(
-                    "fixed_assets",
-                    "actual_amount",
-                    (err, fixedAssetsAmount) => {
-                      if (err) {
-                        res.status(500).json(err);
-                        return;
-                      }
-                      totalBalance += fixedAssetsAmount.totalBalance;
-
-                      // Get total incomes amount
-                      useCalculate(
-                        "incomes",
-                        "actual_amount",
-                        (err, incomesAmount) => {
-                          if (err) {
-                            res.status(500).json(err);
-                            return;
-                          }
-                          totalBalance += incomesAmount.totalBalance;
-
-                          // Send the final total balance as response
-
-                          console.log({ totalBalance });
-
-                          res.status(200).json({ totalBalance });
-                        }
-                      );
-                    }
-                  );
-                }
-              );
-            });
-          });
-        }
-      );
+      res.status(200).json({ totalBalance });
     });
   });
 };

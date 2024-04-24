@@ -1,6 +1,53 @@
 const { connection } = require("../../config");
+const generateUniqueId = require("../../middleware/generateUniqueId");
+const bcrypt = require("bcrypt");
 
-// function
+const createUser = async (req, res) => {
+  const uniqueId = generateUniqueId();
+  const { username, email, password } = req.body;
+
+  // Check if the email is already registered
+  const emailCheckSql = "SELECT * FROM users WHERE email = ?";
+  connection.query(emailCheckSql, [email], async (err, rows) => {
+    if (err) {
+      console.error("Error checking email: " + err.message);
+      res.status(500).json({ error: "Error checking email" });
+      return;
+    }
+
+    if (rows.length > 0) {
+      res.status(400).json({ error: "Email already exists" });
+      return;
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert the new user into the database
+    const company_code = "DEFAULT_VALUE"; // Provide a default value for company_code
+    const company_name = "Personal";
+    const company_address = "Demo Address";
+    const insertUserSql =
+      "INSERT INTO users (id, email, password, username, company_code) VALUES (?, ?, ?, ?, ?)";
+    connection.query(
+      insertUserSql,
+      [uniqueId, email, hashedPassword, username, company_code],
+      (err, result) => {
+        if (err) {
+          console.error("Error creating user: " + err.message);
+          res.status(500).json({ error: "Error creating user" });
+          return;
+        }
+        // User creation successful
+        res.status(201).json({
+          message: "User created successfully",
+          userId: result.insertId,
+        });
+      }
+    );
+  });
+};
+
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -31,33 +78,14 @@ const loginUser = async (req, res) => {
 
       // If passwords match, login successful
       if (result) {
-        res.status(200).json({ message: "Login successful", user });
-
-        // add a default company when user created
-        const createCompany = async (req, res) => {
-          const uniqueId = generateUniqueId();
-          const company_code = "48AAMSMS";
-          const company_name = "Personal";
-          const company_address = "Demo Address";
-          const sql =
-            "INSERT INTO companies (id,company_code, company_name, company_address) VALUES (?,?, ?, ?)";
-          connection.query(
-            sql,
-            [uniqueId, company_code, company_name, company_address],
-            (err, result) => {
-              if (err) {
-                console.error("Error creating company: " + err.message);
-                res.status(500).json({ error: "Error creating company" });
-                return;
-              }
-              res.status(201).json({
-                message: "Company created successfully",
-                companyId: result.insertId,
-              });
-            }
-          );
-        };
-        createCompany();
+        // Create a session to indicate user is logged in
+        console.log(user);
+        // Exclude the password field from the user object before sending it in the response
+        const { password, ...userWithoutPassword } = user;
+        req.session.userId = userWithoutPassword;
+        res
+          .status(200)
+          .json({ message: "Login successful", user: userWithoutPassword });
       } else {
         // If passwords don't match, login failed
         res.status(401).json({ error: "Invalid credentials" });
@@ -111,5 +139,6 @@ const updateProfileData = async (req, res) => {
 const authController = {
   updateProfileData,
   loginUser,
+  createUser,
 };
 module.exports = authController;

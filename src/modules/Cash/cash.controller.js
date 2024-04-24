@@ -14,21 +14,39 @@ const getAllCashRecords = async (req, res) => {
 };
 
 const createCashRecord = async (req, res) => {
-  const { amount } = req.body;
-  const uniqueId = generateUniqueId();
-  const sql = "INSERT INTO cash (id, amount ) VALUES (?, ?)";
-  connection.query(sql, [uniqueId, amount], (err, result) => {
+  const checkExistingQuery = "SELECT COUNT(*) AS count FROM cash";
+  connection.query(checkExistingQuery, (err, rows) => {
     if (err) {
-      console.error("Error creating cash record: " + err.message);
-      res.status(500).json({ error: "Error creating cash record" });
+      console.error("Error checking existing cash record: " + err.message);
+      res.status(500).json({ error: "Error checking existing cash record" });
       return;
     }
-    res.status(201).json({
-      message: "Cash record created successfully",
-      cashId: result.insertId,
+
+    const count = rows[0].count;
+
+    if (count > 0) {
+      res.status(400).json({ error: "Cash record already exists" });
+      return;
+    }
+
+    // If no existing record, proceed with creating a new one
+    const { amount } = req.body;
+    const uniqueId = generateUniqueId();
+    const sql = "INSERT INTO cash (id, amount ) VALUES (?, ?)";
+    connection.query(sql, [uniqueId, amount], (err, result) => {
+      if (err) {
+        console.error("Error creating cash record: " + err.message);
+        res.status(500).json({ error: "Error creating cash record" });
+        return;
+      }
+      res.status(201).json({
+        message: "Cash record created successfully",
+        cashId: result.insertId,
+      });
     });
   });
 };
+
 
 const getCashById = async (req, res) => {
   const cashId = req.params.id;
@@ -67,18 +85,36 @@ const deleteCash = async (req, res) => {
 const updateCash = async (req, res) => {
   const cashId = req.params.id;
   const { amount } = req.body;
-  const sql = "UPDATE cash SET amount = ? WHERE id = ?";
-  connection.query(sql, [amount, cashId], (err, result) => {
+
+  const selectQuery = "SELECT amount FROM cash WHERE id = ?";
+  connection.query(selectQuery, [cashId], (err, rows) => {
     if (err) {
-      console.error("Error updating cash data: " + err.message);
-      res.status(500).json({ error: "Error updating cash data" });
+      console.error("Error fetching cash data: " + err.message);
+      res.status(500).json({ error: "Error fetching cash data" });
       return;
     }
-    if (result.affectedRows === 0) {
+
+    if (rows.length === 0) {
       res.status(404).json({ message: "Cash data not found" });
       return;
     }
-    res.status(200).json({ message: "Cash data updated successfully" });
+    const existingAmount = Number(rows[0].amount); 
+    const newAmount = existingAmount + Number(amount); 
+
+    const updateQuery = "UPDATE cash SET amount = ? WHERE id = ?";
+    connection.query(updateQuery, [newAmount, cashId], (err, result) => {
+      if (err) {
+        console.error("Error updating cash data: " + err.message);
+        res.status(500).json({ error: "Error updating cash data" });
+        return;
+      }
+
+      if (result.affectedRows === 0) {
+        res.status(404).json({ message: "Cash data not found" });
+        return;
+      }
+      res.status(200).json({ message: "Cash data updated successfully", newAmount });
+    });
   });
 };
 

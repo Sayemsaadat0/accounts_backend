@@ -1,5 +1,6 @@
 const { connection } = require("../../config");
 const generateUniqueId = require("../../middleware/generateUniqueId");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 
 const createExpense = async (req, res) => {
   const uniqueId = generateUniqueId();
@@ -14,9 +15,13 @@ const createExpense = async (req, res) => {
     company_name,
     project_name,
     account_id,
+    transaction_type,
   } = req.body;
 
+  // Convert select_date to the appropriate format
   const formattedDate = new Date(select_date).toISOString().split("T")[0];
+
+  // Define the SQL query for inserting expense
   const sql =
     "INSERT INTO expense (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const values = [
@@ -32,60 +37,31 @@ const createExpense = async (req, res) => {
     project_name,
   ];
 
-  // Deduct expense from the selected account balance
-  let updateOperator = "-";
-  if (
-    payment_type === "income" ||
-    payment_type === "account_Recivable" ||
-    payment_type === "sales"
-  ) {
-    updateOperator = "+";
-  }
-  console.log("Update Operator:", updateOperator);
+  // Assuming 'connection' object is available in the scope
 
-  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
-  const updateBalanceValues = [actual_amount, account_id];
-  console.log("Update Balance SQL:", updateBalanceSql);
-  console.log("Update Balance Values:", updateBalanceValues);
-
-  connection.beginTransaction(function (err) {
-    if (err) {
-      console.error("Error starting transaction: " + err.message);
-      res.status(500).json({ error: "Error creating expense" });
-      return;
-    }
-
-    connection.query(sql, values, function (err, result) {
-      if (err) {
-        return connection.rollback(function () {
-          console.error("Error creating expense: " + err.message);
-          res.status(500).json({ error: "Error creating expense" });
-        });
-      }
-
-      connection.query(updateBalanceSql, updateBalanceValues, function (err) {
-        if (err) {
-          return connection.rollback(function () {
-            console.error("Error updating account balance: " + err.message);
-            res.status(500).json({ error: "Error creating expense" });
-          });
-        }
-
-        connection.commit(function (err) {
-          if (err) {
-            return connection.rollback(function () {
-              console.error("Error committing transaction: " + err.message);
-              res.status(500).json({ error: "Error creating expense" });
-            });
-          }
-          res.status(201).json({
-            message: "Expense created successfully",
-            expenseId: result.insertId,
-          });
-        });
+  // Call useManageBankAccount function
+  useManageBankAccount({
+    transaction_type,
+    payment_type,
+    actual_amount,
+    account_id,
+    sql,
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
+      res.status(201).json({
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
       });
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
     });
-  });
 };
 
 const getAllExpenses = async (req, res) => {

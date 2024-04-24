@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllFixedAssets = async (req, res) => {
@@ -27,7 +28,20 @@ const createFixedAsset = async (req, res) => {
     quantity,
     company_name,
     project_name,
+    account_id,
+    transaction_type, // Added account_id for updating the account balance
   } = req.body;
+
+  // Validate if select_date and deduction_month are valid date strings
+  const isValidDate = (dateString) => {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    return regex.test(dateString);
+  };
+
+  if (!isValidDate(select_date) || !isValidDate(deduction_month)) {
+    return res.status(400).json({ error: "Invalid date format" });
+  }
+
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
     .split("T")[0];
@@ -35,35 +49,43 @@ const createFixedAsset = async (req, res) => {
     .toISOString()
     .split("T")[0];
   const sql =
-    "INSERT INTO fixed_assets (id,select_date, payment_type, deduction_month, actual_amount, paid_amount,  due_amount, note, asset_header, quantity, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  connection.query(
+    "INSERT INTO fixed_assets (id, select_date, payment_type, deduction_month, actual_amount, paid_amount,  due_amount, note, asset_header, quantity, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const values = [
+    uniqueId,
+    formattedSelectedDate,
+    payment_type,
+    formattedDeductionDate,
+    actual_amount,
+    paid_amount,
+    due_amount,
+    note,
+    asset_header,
+    quantity,
+    company_name,
+    project_name,
+  ];
+  useManageBankAccount({
+    transaction_type,
+    payment_type,
+    actual_amount,
+    account_id,
     sql,
-    [
-      uniqueId,
-      formattedSelectedDate,
-      payment_type,
-      formattedDeductionDate,
-      actual_amount,
-      paid_amount,
-      due_amount,
-      note,
-      asset_header,
-      quantity,
-      company_name,
-      project_name,
-    ],
-    (err, result) => {
-      if (err) {
-        console.error("Error creating fixed asset: " + err.message);
-        res.status(500).json({ error: "Error creating fixed asset" });
-        return;
-      }
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
       res.status(201).json({
-        message: "Fixed asset created successfully",
-        assetId: result.insertId,
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
       });
-    }
-  );
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
+    });
 };
 
 const getFixedAssetById = async (req, res) => {

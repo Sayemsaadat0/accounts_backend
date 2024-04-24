@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllPurchases = async (req, res) => {
@@ -25,40 +26,50 @@ const createPurchase = async (req, res) => {
     supplier_name,
     company_name,
     project_name,
+    account_id,
+    transaction_type,
   } = req.body;
   const formattedSelectedDate = new Date(select_date)
     .toISOString()
     .split("T")[0];
 
   const sql =
-    "INSERT INTO purchase (id,select_date, payment_type, actual_amount, paid_amount, due_amount, note, supplier_name, company_name, project_name) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  connection.query(
+    "INSERT INTO purchase (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, supplier_name, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const values = [
+    uniqueId,
+    formattedSelectedDate,
+    payment_type,
+    actual_amount,
+    paid_amount,
+    due_amount,
+    note,
+    supplier_name,
+    company_name,
+    project_name,
+  ];
+
+  useManageBankAccount({
+    transaction_type,
+    payment_type,
+    actual_amount,
+    account_id,
     sql,
-    [
-      uniqueId,
-      formattedSelectedDate,
-      payment_type,
-      actual_amount,
-      paid_amount,
-      due_amount,
-      note,
-      supplier_name,
-      ,
-      company_name,
-      project_name,
-    ],
-    (err, result) => {
-      if (err) {
-        console.error("Error creating purchase: " + err.message);
-        res.status(500).json({ error: "Error creating purchase" });
-        return;
-      }
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
       res.status(201).json({
-        message: "Purchase created successfully",
-        purchaseId: result.insertId,
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
       });
-    }
-  );
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
+    });
 };
 
 const getPurchaseById = async (req, res) => {
