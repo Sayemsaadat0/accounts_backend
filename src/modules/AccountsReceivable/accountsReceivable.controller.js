@@ -40,6 +40,7 @@ const createAccountsReceivable = async (req, res) => {
   useManageBankAccount({
     transaction_type,
     actual_amount,
+    payment_type,
     account_id,
     sql,
     values,

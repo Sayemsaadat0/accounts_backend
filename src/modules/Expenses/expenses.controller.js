@@ -42,6 +42,7 @@ const createExpense = async (req, res) => {
   // Call useManageBankAccount function
   useManageBankAccount({
     transaction_type,
+    payment_type,
     actual_amount,
     account_id,
     sql,

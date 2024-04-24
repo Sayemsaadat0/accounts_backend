@@ -66,6 +66,7 @@ const createFixedAsset = async (req, res) => {
   ];
   useManageBankAccount({
     transaction_type,
+    payment_type,
     actual_amount,
     account_id,
     sql,
