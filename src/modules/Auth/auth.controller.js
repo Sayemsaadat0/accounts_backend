@@ -79,10 +79,13 @@ const loginUser = async (req, res) => {
       // If passwords match, login successful
       if (result) {
         // Create a session to indicate user is logged in
-        console.log(user.id);
-        req.session.userId = user.id;
-        const uId = user.id;
-        res.status(200).json({ message: "Login successful", uId });
+        console.log(user);
+        // Exclude the password field from the user object before sending it in the response
+        const { password, ...userWithoutPassword } = user;
+        req.session.userId = userWithoutPassword;
+        res
+          .status(200)
+          .json({ message: "Login successful", user: userWithoutPassword });
       } else {
         // If passwords don't match, login failed
         res.status(401).json({ error: "Invalid credentials" });
