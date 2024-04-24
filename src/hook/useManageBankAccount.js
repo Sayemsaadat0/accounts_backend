@@ -82,7 +82,7 @@ const useManageBankAccount = ({
 
         if (tableName === "cash") {
           // Update cash table
-          updateCash(connection, "VCI9FQ8EE666", actual_amount)
+          updateCash(connection, "1", actual_amount)
             .then((newAmount) => {
               connection.commit(function (err) {
                 if (err) {
