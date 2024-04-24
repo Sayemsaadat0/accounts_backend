@@ -48,13 +48,14 @@ const useManageBankAccount = ({
   return new Promise((resolve, reject) => {
     // Deduct expense from the selected account balance
     let tableName = payment_type === "bank" ? "accounts" : "cash";
-    const updateOperator =
+    let updateOperator = "-";
+    if (
       transaction_type === "incomes" ||
       transaction_type === "accounts-recivable" ||
       transaction_type === "sales"
-        ? "+"
-        : "-";
-
+    ) {
+      updateOperator = "+";
+    }
     console.log("Update Operator:", updateOperator);
 
     const updateBalanceSql = `UPDATE ${tableName} SET ${
