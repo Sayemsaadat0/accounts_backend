@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllSales = async (req, res) => {
@@ -17,7 +18,7 @@ const createSale = async (req, res) => {
   const uniqueId = generateUniqueId();
   const {
     select_date,
-
+    transaction_type,
     account_id,
     payment_type,
     customer_name,
@@ -47,50 +48,27 @@ const createSale = async (req, res) => {
     project_name,
   ];
 
-  // Add paid amount to the selected account balance
-  let updateOperator = "+";
-
-  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
-  const updateBalanceValues = [actual_amount, account_id];
-
-  connection.beginTransaction(function (err) {
-    if (err) {
-      console.error("Error starting transaction: " + err.message);
-      res.status(500).json({ error: "Error creating sale" });
-      return;
-    }
-
-    connection.query(sql, values, function (err, result) {
-      if (err) {
-        return connection.rollback(function () {
-          console.error("Error creating sale: " + err.message);
-          res.status(500).json({ error: "Error creating sale" });
-        });
-      }
-
-      connection.query(updateBalanceSql, updateBalanceValues, function (err) {
-        if (err) {
-          return connection.rollback(function () {
-            console.error("Error updating account balance: " + err.message);
-            res.status(500).json({ error: "Error creating sale" });
-          });
-        }
-
-        connection.commit(function (err) {
-          if (err) {
-            return connection.rollback(function () {
-              console.error("Error committing transaction: " + err.message);
-              res.status(500).json({ error: "Error creating sale" });
-            });
-          }
-          res.status(201).json({
-            message: "Sale created successfully",
-            saleId: result.insertId,
-          });
-        });
+  useManageBankAccount({
+    transaction_type,
+    actual_amount,
+    account_id,
+    sql,
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
+      res.status(201).json({
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
       });
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
     });
-  });
 };
 
 const getSaleById = async (req, res) => {

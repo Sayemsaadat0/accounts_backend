@@ -1,5 +1,6 @@
 const { connection } = require("../../config");
 const generateUniqueId = require("../../middleware/generateUniqueId");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 
 const createExpense = async (req, res) => {
   const uniqueId = generateUniqueId();
@@ -16,9 +17,11 @@ const createExpense = async (req, res) => {
     account_id,
     transaction_type,
   } = req.body;
-  console.log("--------------------", { payment_type });
 
+  // Convert select_date to the appropriate format
   const formattedDate = new Date(select_date).toISOString().split("T")[0];
+
+  // Define the SQL query for inserting expense
   const sql =
     "INSERT INTO expense (id, select_date, payment_type, actual_amount, paid_amount, due_amount, note, ledger, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const values = [
@@ -33,6 +36,31 @@ const createExpense = async (req, res) => {
     company_name,
     project_name,
   ];
+
+  // Assuming 'connection' object is available in the scope
+
+  // Call useManageBankAccount function
+  useManageBankAccount({
+    transaction_type,
+    actual_amount,
+    account_id,
+    sql,
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
+      res.status(201).json({
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
+      });
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
+    });
 };
 
 const getAllExpenses = async (req, res) => {

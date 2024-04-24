@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const getAllFixedAssets = async (req, res) => {
@@ -49,68 +50,41 @@ const createFixedAsset = async (req, res) => {
     .split("T")[0];
   const sql =
     "INSERT INTO fixed_assets (id, select_date, payment_type, deduction_month, actual_amount, paid_amount,  due_amount, note, asset_header, quantity, company_name, project_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-  // Deduct expense from the selected account balance for expenses
-  let updateOperator = "-";
-
-  connection.beginTransaction(function (err) {
-    if (err) {
-      console.error("Error starting transaction: " + err.message);
-      res.status(500).json({ error: "Error creating fixed asset" });
-      return;
-    }
-
-    connection.query(
-      sql,
-      [
-        uniqueId,
-        formattedSelectedDate,
-        payment_type,
-        formattedDeductionDate,
-        actual_amount,
-        paid_amount,
-        due_amount,
-        note,
-        asset_header,
-        quantity,
-        company_name,
-        project_name,
-      ],
-      function (err, result) {
-        if (err) {
-          return connection.rollback(function () {
-            console.error("Error creating fixed asset: " + err.message);
-            res.status(500).json({ error: "Error creating fixed asset" });
-          });
-        }
-
-        // Update the account balance
-        const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
-        const updateBalanceValues = [actual_amount, account_id];
-        connection.query(updateBalanceSql, updateBalanceValues, function (err) {
-          if (err) {
-            return connection.rollback(function () {
-              console.error("Error updating account balance: " + err.message);
-              res.status(500).json({ error: "Error creating fixed asset" });
-            });
-          }
-
-          connection.commit(function (err) {
-            if (err) {
-              return connection.rollback(function () {
-                console.error("Error committing transaction: " + err.message);
-                res.status(500).json({ error: "Error creating fixed asset" });
-              });
-            }
-            res.status(201).json({
-              message: "Fixed asset created successfully",
-              assetId: result.insertId,
-            });
-          });
-        });
-      }
-    );
-  });
+  const values = [
+    uniqueId,
+    formattedSelectedDate,
+    payment_type,
+    formattedDeductionDate,
+    actual_amount,
+    paid_amount,
+    due_amount,
+    note,
+    asset_header,
+    quantity,
+    company_name,
+    project_name,
+  ];
+  useManageBankAccount({
+    transaction_type,
+    actual_amount,
+    account_id,
+    sql,
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
+      res.status(201).json({
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
+      });
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
+    });
 };
 
 const getFixedAssetById = async (req, res) => {

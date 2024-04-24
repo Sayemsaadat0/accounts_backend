@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const createIncome = async (req, res) => {
@@ -14,6 +15,7 @@ const createIncome = async (req, res) => {
     company_name,
     project_name,
     account_id,
+    transaction_type,
   } = req.body;
 
   // Convert select_date to the correct format
@@ -34,49 +36,27 @@ const createIncome = async (req, res) => {
     project_name,
   ];
 
-  // Add or subtract income amount from account balance
-  const updateOperator = "+";
-  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
-  const updateBalanceValues = [actual_amount, account_id];
-
-  connection.beginTransaction(function (err) {
-    if (err) {
-      console.error("Error starting transaction: " + err.message);
-      res.status(500).json({ error: "Error creating income" });
-      return;
-    }
-
-    connection.query(sql, values, function (err, result) {
-      if (err) {
-        return connection.rollback(function () {
-          console.error("Error creating income: " + err.message);
-          res.status(500).json({ error: "Error creating income" });
-        });
-      }
-
-      connection.query(updateBalanceSql, updateBalanceValues, function (err) {
-        if (err) {
-          return connection.rollback(function () {
-            console.error("Error updating account balance: " + err.message);
-            res.status(500).json({ error: "Error creating income" });
-          });
-        }
-
-        connection.commit(function (err) {
-          if (err) {
-            return connection.rollback(function () {
-              console.error("Error committing transaction: " + err.message);
-              res.status(500).json({ error: "Error creating income" });
-            });
-          }
-          res.status(201).json({
-            message: "Income created successfully",
-            incomeId: result.insertId,
-          });
-        });
+  useManageBankAccount({
+    transaction_type,
+    actual_amount,
+    account_id,
+    sql,
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
+      res.status(201).json({
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
       });
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
     });
-  });
 };
 
 const getAllIncomes = async (req, res) => {

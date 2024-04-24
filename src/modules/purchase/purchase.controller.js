@@ -1,5 +1,7 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
+
 const getAllPurchases = async (req, res) => {
   const sql = "SELECT * FROM purchase";
   connection.query(sql, (err, results) => {
@@ -46,60 +48,27 @@ const createPurchase = async (req, res) => {
     project_name,
   ];
 
-  // Deduct purchase amount from the selected account balance
-  let updateOperator = "-";
-  if (
-    transaction_type === "expense" ||
-    transaction_type === "account_payable" ||
-    transaction_type === "purchases"
-  ) {
-    updateOperator = "+";
-  }
-  console.log("Update Operator:", updateOperator);
-
-  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ? WHERE id = ?`;
-  const updateBalanceValues = [actual_amount, account_id];
-  console.log("Update Balance SQL:", updateBalanceSql);
-  console.log("Update Balance Values:", updateBalanceValues);
-
-  connection.beginTransaction(function (err) {
-    if (err) {
-      console.error("Error starting transaction: " + err.message);
-      res.status(500).json({ error: "Error creating purchase" });
-      return;
-    }
-
-    connection.query(sql, values, function (err, result) {
-      if (err) {
-        return connection.rollback(function () {
-          console.error("Error creating purchase: " + err.message);
-          res.status(500).json({ error: "Error creating purchase" });
-        });
-      }
-
-      connection.query(updateBalanceSql, updateBalanceValues, function (err) {
-        if (err) {
-          return connection.rollback(function () {
-            console.error("Error updating account balance: " + err.message);
-            res.status(500).json({ error: "Error creating purchase" });
-          });
-        }
-
-        connection.commit(function (err) {
-          if (err) {
-            return connection.rollback(function () {
-              console.error("Error committing transaction: " + err.message);
-              res.status(500).json({ error: "Error creating purchase" });
-            });
-          }
-          res.status(201).json({
-            message: "Purchase created successfully",
-            purchaseId: result.insertId,
-          });
-        });
+  useManageBankAccount({
+    transaction_type,
+    actual_amount,
+    account_id,
+    sql,
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
+      res.status(201).json({
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
       });
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
     });
-  });
 };
 
 const getPurchaseById = async (req, res) => {

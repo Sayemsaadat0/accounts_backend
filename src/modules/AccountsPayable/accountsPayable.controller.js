@@ -1,4 +1,5 @@
 const { connection } = require("../../config");
+const useManageBankAccount = require("../../hook/useManageBankAccount");
 const generateUniqueId = require("../../middleware/generateUniqueId");
 
 const createAccountsPayable = async (req, res) => {
@@ -13,6 +14,7 @@ const createAccountsPayable = async (req, res) => {
     ledger_name,
     company_name,
     project_name,
+    account_id,
     transaction_type,
   } = req.body;
 
@@ -36,58 +38,27 @@ const createAccountsPayable = async (req, res) => {
     project_name,
   ];
 
-  // Update balance based on payment type
-  let updateOperator = "-";
-  if (
-    transaction_type === "income" ||
-    transaction_type === "account_Recivable" ||
-    transaction_type === "sales"
-  ) {
-    updateOperator = "+";
-  }
-
-  const updateBalanceSql = `UPDATE accounts SET balance = balance ${updateOperator} ?`;
-
-  connection.beginTransaction(function (err) {
-    if (err) {
-      console.error("Error starting transaction: " + err.message);
-      res.status(500).json({ error: "Error creating accounts payable" });
-      return;
-    }
-
-    connection.query(sql, values, function (err, result) {
-      if (err) {
-        return connection.rollback(function () {
-          console.error("Error creating accounts payable: " + err.message);
-          res.status(500).json({ error: "Error creating accounts payable" });
-        });
-      }
-
-      connection.query(updateBalanceSql, [actual_amount], function (err) {
-        if (err) {
-          return connection.rollback(function () {
-            console.error("Error updating account balance: " + err.message);
-            res.status(500).json({ error: "Error creating accounts payable" });
-          });
-        }
-
-        connection.commit(function (err) {
-          if (err) {
-            return connection.rollback(function () {
-              console.error("Error committing transaction: " + err.message);
-              res
-                .status(500)
-                .json({ error: "Error creating accounts payable" });
-            });
-          }
-          res.status(201).json({
-            message: "Accounts payable created successfully",
-            accountsPayableId: result.insertId,
-          });
-        });
+  useManageBankAccount({
+    transaction_type,
+    actual_amount,
+    account_id,
+    sql,
+    values,
+    connection, // Pass the 'connection' object
+  })
+    .then((result) => {
+      // Handle the result if needed
+      console.log(result);
+      res.status(201).json({
+        message: "Expense created successfully",
+        expenseId: result.expenseId,
       });
+    })
+    .catch((error) => {
+      // Handle error if needed
+      console.error(error);
+      res.status(500).json({ error: "Error creating expense" });
     });
-  });
 };
 
 const getAllAccountsPayable = async (req, res) => {
